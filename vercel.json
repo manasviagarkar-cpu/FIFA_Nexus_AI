@@ -16,6 +16,10 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "public/index.html"
+    },
+    {
       "src": "/api/v1/routes/(.*)",
       "dest": "services/wayfinding/app/main.py"
     },
