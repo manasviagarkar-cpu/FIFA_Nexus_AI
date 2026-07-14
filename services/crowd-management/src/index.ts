@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 app.get('/api/v1/health', async (req, res) => {
   const uptime = process.uptime();
   const dependencies: { name: string; status: 'connected' | 'disconnected'; latencyMs?: number }[] = [];
-  let overallStatus: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+  let overallStatus: string = 'healthy';
 
   // Test Database
   try {

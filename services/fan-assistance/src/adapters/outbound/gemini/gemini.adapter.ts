@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GeminiPort } from '../../../domain/ports/outbound.ports';
 import { config } from '../../../config';
 import { logger } from '../../../infrastructure/logger';
@@ -11,7 +11,7 @@ export class GeminiAdapter implements GeminiPort {
     this.modelName = config.gemini.model || 'gemini-2.5-pro';
     if (config.gemini.apiKey) {
       // Use the official SDK syntax
-      this.ai = new GoogleGenAI({ apiKey: config.gemini.apiKey });
+      this.ai = new GoogleGenerativeAI(config.gemini.apiKey);
     } else {
       logger.warn('GEMINI_API_KEY is not defined. Fan Assistance Gemini queries will fall back to mocked answers.');
     }

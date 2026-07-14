@@ -18,7 +18,8 @@ import { GeminiAdapter } from './adapters/outbound/gemini/gemini.adapter';
 import { connectDb, pool } from './infrastructure/database';
 import { connectRedis, redisClient } from './infrastructure/redis';
 import { logger } from './infrastructure/logger';
-import { JWTPayload, UserRole, DEFAULT_RATE_LIMITS } from '@shared/auth';
+import { JWTPayload, DEFAULT_RATE_LIMITS } from '@shared/auth';
+import { UserRole } from '@shared/common';
 
 const app = express();
 const server = http.createServer(app);
@@ -34,7 +35,7 @@ app.use(express.json());
 app.get('/api/v1/health', async (req, res) => {
   const uptime = process.uptime();
   const dependencies: { name: string; status: 'connected' | 'disconnected'; latencyMs?: number }[] = [];
-  let overallStatus: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+  let overallStatus: string = 'healthy';
 
   try {
     const t0 = Date.now();
