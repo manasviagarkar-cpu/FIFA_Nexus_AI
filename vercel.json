@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "services/wayfinding/app/main.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "services/crowd-management/src/index.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "services/fan-assistance/src/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/v1/routes/(.*)",
+      "dest": "services/wayfinding/app/main.py"
+    },
+    {
+      "src": "/api/v1/zones/(.*)",
+      "dest": "services/wayfinding/app/main.py"
+    },
+    {
+      "src": "/api/v1/stadium/(.*)",
+      "dest": "services/wayfinding/app/main.py"
+    },
+    {
+      "src": "/api/v1/health-wayfinding",
+      "dest": "services/wayfinding/app/main.py"
+    },
+    {
+      "src": "/api/v1/sensors/(.*)",
+      "dest": "services/crowd-management/src/index.ts"
+    },
+    {
+      "src": "/api/v1/predictions/(.*)",
+      "dest": "services/crowd-management/src/index.ts"
+    },
+    {
+      "src": "/api/v1/alerts/(.*)",
+      "dest": "services/crowd-management/src/index.ts"
+    },
+    {
+      "src": "/graphql",
+      "dest": "services/fan-assistance/src/index.ts"
+    }
+  ]
+}
