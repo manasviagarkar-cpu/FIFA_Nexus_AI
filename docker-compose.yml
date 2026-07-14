@@ -45,8 +45,8 @@ services:
   # =========================================================================
   wayfinding:
     build:
-      context: ./services/wayfinding
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/wayfinding/Dockerfile
     container_name: fifa-nexus-wayfinding
     ports:
       - "${WAYFINDING_PORT:-8001}:8001"
@@ -81,8 +81,8 @@ services:
 
   crowd-management:
     build:
-      context: ./services/crowd-management
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/crowd-management/Dockerfile
     container_name: fifa-nexus-crowd-management
     ports:
       - "${CROWD_MGMT_PORT:-8002}:8002"
@@ -116,8 +116,8 @@ services:
 
   fan-assistance:
     build:
-      context: ./services/fan-assistance
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/fan-assistance/Dockerfile
     container_name: fifa-nexus-fan-assistance
     ports:
       - "${FAN_ASSIST_PORT:-8003}:8003"

@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && \
 COPY --from=builder /install /usr/local
 
 # Copy shared contracts
-COPY ../../shared/contracts/python /app/shared/
+COPY shared/contracts/python /app/shared/
 
 # Copy application code
 COPY app/ /app/app/
