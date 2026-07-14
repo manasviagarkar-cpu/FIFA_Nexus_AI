@@ -11,7 +11,9 @@ export class SensorIngestionService implements SensorIngestionUseCase {
   ) {}
 
   async ingest(readings: SensorReading[], sourceSystem: string, batchId: string) {
-    logger.info(`Processing ingestion batch ${batchId} from source ${sourceSystem}. Count: ${readings.length}`);
+    logger.info(
+      `Processing ingestion batch ${batchId} from source ${sourceSystem}. Count: ${readings.length}`
+    );
 
     // Save to sensor data historical log
     await this.sensorRepo.saveReadings(readings, batchId);
@@ -44,12 +46,14 @@ export class SensorIngestionService implements SensorIngestionUseCase {
         const currentData = await this.zoneRepo.getZoneCapacityAndOccupancy(zoneId);
         if (currentData) {
           let newOccupancy = currentData.currentOccupancy;
-          
+
           // If the counter or camera is used, it's an absolute value; if turnstile, it's a delta.
           // Let's look up if we have turnstiles for that zone.
-          const zoneReadings = readings.filter(r => r.zoneId === zoneId);
-          const hasAbsolute = zoneReadings.some(r => r.sensorType === 'crowd_counter' || r.sensorType === 'camera');
-          
+          const zoneReadings = readings.filter((r) => r.zoneId === zoneId);
+          const hasAbsolute = zoneReadings.some(
+            (r) => r.sensorType === 'crowd_counter' || r.sensorType === 'camera'
+          );
+
           if (hasAbsolute) {
             newOccupancy = deltaOrCount;
           } else {
@@ -60,14 +64,17 @@ export class SensorIngestionService implements SensorIngestionUseCase {
           newOccupancy = Math.min(newOccupancy, currentData.capacity * 1.5);
 
           await this.zoneRepo.updateZoneOccupancy(zoneId, newOccupancy);
-          
+
           // Publish real-time density update for sub/pub synchronization
           const densityRatio = newOccupancy / Math.max(1, currentData.capacity);
-          await this.cache.publish('zone:density:updates', JSON.stringify({
-            zoneId,
-            currentOccupancy: newOccupancy,
-            densityRatio,
-          }));
+          await this.cache.publish(
+            'zone:density:updates',
+            JSON.stringify({
+              zoneId,
+              currentOccupancy: newOccupancy,
+              densityRatio,
+            })
+          );
         }
       } catch (err: any) {
         logger.error(`Failed to update occupancy for zone ${zoneId}:`, err);

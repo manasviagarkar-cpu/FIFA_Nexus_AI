@@ -11,7 +11,6 @@ import { logger } from './infrastructure/logger';
 import { PostgresAdapter } from './adapters/outbound/database/postgres.adapter';
 import { RedisAdapter } from './adapters/outbound/cache/redis.adapter';
 import { PredictionService } from './domain/services/prediction.service';
-import { AlertService } from './domain/services/alert.service';
 
 const app = express();
 const server = http.createServer(app);
@@ -35,7 +34,8 @@ app.use((req, res, next) => {
 // Health check endpoint
 app.get('/api/v1/health', async (req, res) => {
   const uptime = process.uptime();
-  const dependencies: { name: string; status: 'connected' | 'disconnected'; latencyMs?: number }[] = [];
+  const dependencies: { name: string; status: 'connected' | 'disconnected'; latencyMs?: number }[] =
+    [];
   let overallStatus: string = 'healthy';
 
   // Test Database
@@ -76,7 +76,7 @@ app.get('/api/v1/health', async (req, res) => {
 app.use('/api/v1', createRouter());
 
 // Express Global Error Handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error('Unhandled request exception:', err);
   return res.status(err.statusCode || 500).json({
     success: false,
@@ -93,7 +93,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 let predictionTimer: NodeJS.Timeout;
 const startPredictionPipeline = (predictionService: PredictionService) => {
   logger.info(`Starting periodic prediction loop every ${config.prediction.intervalMs / 1000}s`);
-  
+
   const runCycle = async () => {
     try {
       await predictionService.runPredictionCycle();
@@ -119,8 +119,13 @@ const bootstrap = async () => {
     // Setup services for background runner
     const dbAdapter = new PostgresAdapter();
     const cacheAdapter = new RedisAdapter();
-    const alertService = new AlertService(dbAdapter, cacheAdapter);
-    const predictionService = new PredictionService(dbAdapter, dbAdapter, dbAdapter, dbAdapter, cacheAdapter);
+    const predictionService = new PredictionService(
+      dbAdapter,
+      dbAdapter,
+      dbAdapter,
+      dbAdapter,
+      cacheAdapter
+    );
 
     startPredictionPipeline(predictionService);
 
@@ -139,10 +144,10 @@ bootstrap();
 const gracefulShutdown = async (signal: string) => {
   logger.info(`Received ${signal}. Shutting down worker...`);
   clearInterval(predictionTimer);
-  
+
   server.close(async () => {
     logger.info('HTTP server closed.');
-    
+
     try {
       await pool.end();
       logger.info('Database pool closed.');

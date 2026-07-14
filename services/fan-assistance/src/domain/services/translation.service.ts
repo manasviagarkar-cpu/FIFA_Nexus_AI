@@ -17,7 +17,7 @@ export class TranslationService implements TranslationUseCase {
     sourceLang: SupportedLanguage | undefined,
     targetLang: SupportedLanguage,
     context?: string,
-    userId?: string
+    _userId?: string
   ): Promise<TranslationResponse> {
     if (!text.trim()) {
       throw new Error('Input text must not be empty.');
@@ -38,7 +38,12 @@ export class TranslationService implements TranslationUseCase {
     }
 
     // Check persistent database cache
-    const dbCached = await this.cacheRepo.getCachedTranslation(textHash, sourceLangStr, targetLang, context);
+    const dbCached = await this.cacheRepo.getCachedTranslation(
+      textHash,
+      sourceLangStr,
+      targetLang,
+      context
+    );
     if (dbCached) {
       logger.info('Translation served from PostgreSQL database cache.');
       // Warm up Redis
@@ -49,7 +54,7 @@ export class TranslationService implements TranslationUseCase {
     // Call Gemini API
     try {
       const geminiResult = await this.gemini.translateText(cleanedText, targetLang, context);
-      
+
       const translationResponse: TranslationResponse = {
         translatedText: geminiResult.translatedText,
         sourceLanguage: geminiResult.sourceLanguage as SupportedLanguage,
@@ -61,8 +66,14 @@ export class TranslationService implements TranslationUseCase {
       };
 
       // Save to DB cache
-      await this.cacheRepo.saveTranslationToCache(textHash, geminiResult.sourceLanguage, targetLang, translationResponse, context);
-      
+      await this.cacheRepo.saveTranslationToCache(
+        textHash,
+        geminiResult.sourceLanguage,
+        targetLang,
+        translationResponse,
+        context
+      );
+
       // Save to Redis cache (1 hour TTL)
       await this.cache.set(cacheKey, translationResponse, 3600);
 

@@ -32,6 +32,6 @@ export const config = {
   },
   prediction: {
     intervalMs: 30000, // Predict every 30 seconds
-    alpha: 0.3,       // EWMA smoothing factor
+    alpha: 0.3, // EWMA smoothing factor
   },
 };

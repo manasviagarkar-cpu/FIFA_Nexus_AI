@@ -5,7 +5,6 @@ import { createRouter } from '../../src/adapters/inbound/http/routes';
 import { config } from '../../src/config';
 import { UserRole } from '@shared/auth';
 import { pool } from '../../src/infrastructure/database';
-import { redisClient } from '../../src/infrastructure/redis';
 
 // Mock DB infrastructure completely for e2e tests
 jest.mock('../../src/infrastructure/database', () => ({

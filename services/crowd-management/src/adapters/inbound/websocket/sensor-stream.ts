@@ -45,7 +45,9 @@ export const setupWebSocketServer = (server: Server): WebSocketServer => {
 
     // Ping/pong heartbeat mechanism to avoid stale sockets
     let isAlive = true;
-    ws.on('pong', () => { isAlive = true; });
+    ws.on('pong', () => {
+      isAlive = true;
+    });
 
     const pingInterval = setInterval(() => {
       if (!isAlive) {

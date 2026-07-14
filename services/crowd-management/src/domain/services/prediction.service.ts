@@ -1,7 +1,13 @@
 import { CongestionPrediction, StaffAlert } from '@shared/crowd';
 import { CongestionLevel, AlertPriority } from '@shared/common';
 import { CrowdPredictionUseCase } from '../ports/inbound.ports';
-import { PredictionRepository, ZoneRepository, SensorRepository, CachePort, AlertRepository } from '../ports/outbound.ports';
+import {
+  PredictionRepository,
+  ZoneRepository,
+  SensorRepository,
+  CachePort,
+  AlertRepository,
+} from '../ports/outbound.ports';
 import { EWMAConfig, HistoricalPoint } from '../../utils/prediction-model';
 import { logger } from '../../infrastructure/logger';
 
@@ -35,8 +41,8 @@ export class PredictionService implements CrowdPredictionUseCase {
     for (const zone of zones) {
       // Get last 30 minutes of sensor readings for this zone
       const recentReadings = await this.sensorRepo.getRecentReadings(zone.id, 10);
-      
-      const history: HistoricalPoint[] = recentReadings.map(r => {
+
+      const history: HistoricalPoint[] = recentReadings.map((r) => {
         let occ = 0;
         if (r.sensorType === 'turnstile') {
           occ = (r.payload as any).entriesCount || 0;
@@ -54,7 +60,6 @@ export class PredictionService implements CrowdPredictionUseCase {
       // Calculate predictions using EWMA model
       const currentOccupancy = zone.currentOccupancy;
       const capacity = zone.capacity;
-      const densityRatio = currentOccupancy / Math.max(1, capacity);
 
       const prediction15 = EWMAConfig.predictFuture(currentOccupancy, history, 0.3, 15);
       const prediction30 = EWMAConfig.predictFuture(currentOccupancy, history, 0.3, 30);
@@ -112,7 +117,9 @@ export class PredictionService implements CrowdPredictionUseCase {
 
   private async checkAndTriggerCongestionAlert(prediction: CongestionPrediction): Promise<void> {
     const activeAlerts = await this.alertRepo.getActiveAlerts();
-    const existing = activeAlerts.find(a => a.zoneId === prediction.zoneId && a.category === 'congestion');
+    const existing = activeAlerts.find(
+      (a) => a.zoneId === prediction.zoneId && a.category === 'congestion'
+    );
 
     if (existing) {
       // Alert already active, don't spam duplicate alerts
@@ -129,7 +136,8 @@ export class PredictionService implements CrowdPredictionUseCase {
       zoneName: prediction.zoneName,
       title: `Critical Congestion Warning: ${prediction.zoneName}`,
       description: `Predictive analytics indicates critical crowding in ${prediction.zoneName} within the next 15-30 minutes. Current occupancy: ${prediction.currentOccupancy}/${prediction.maxCapacity}.`,
-      recommendedAction: 'Deploy 4 additional guest-relations staff to manage queuing, open secondary egress gates, and trigger wayfinding reroutes.',
+      recommendedAction:
+        'Deploy 4 additional guest-relations staff to manage queuing, open secondary egress gates, and trigger wayfinding reroutes.',
       staffRequired: 4,
       coordinate: prediction.coordinate,
       createdAt: new Date().toISOString(),
@@ -138,6 +146,8 @@ export class PredictionService implements CrowdPredictionUseCase {
 
     await this.alertRepo.saveAlert(newAlert);
     await this.cache.publish('alerts:active', JSON.stringify(newAlert));
-    logger.warn(`Automated staff deployment alert triggered for zone ${prediction.zoneId} due to predicted congestion.`);
+    logger.warn(
+      `Automated staff deployment alert triggered for zone ${prediction.zoneId} due to predicted congestion.`
+    );
   }
 }

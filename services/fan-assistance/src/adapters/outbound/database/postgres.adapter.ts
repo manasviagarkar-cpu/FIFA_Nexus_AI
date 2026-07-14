@@ -1,5 +1,4 @@
 import { Pool } from 'pg';
-import crypto from 'crypto';
 import { TranslationResponse } from '@shared/fan-assistance';
 import {
   TranslationCacheRepository,
@@ -36,10 +35,12 @@ export class PostgresAdapter
     if (res.rows.length === 0) return null;
 
     // Increment hit count asynchronously
-    this.pool.query(
-      `UPDATE translation_cache SET hit_count = hit_count + 1 WHERE source_text_hash = $1 AND source_language = $2 AND target_language = $3`,
-      [textHash, sourceLang, targetLang]
-    ).catch(err => logger.error('Failed to update translation hit count:', err));
+    this.pool
+      .query(
+        `UPDATE translation_cache SET hit_count = hit_count + 1 WHERE source_text_hash = $1 AND source_language = $2 AND target_language = $3`,
+        [textHash, sourceLang, targetLang]
+      )
+      .catch((err) => logger.error('Failed to update translation hit count:', err));
 
     const row = res.rows[0];
     return {
@@ -78,13 +79,25 @@ export class PostgresAdapter
   // ============================================================================
   // FeedbackRepository
   // ============================================================================
-  async saveFeedback(userId: string, type: string, interactionId: string, rating: number, comment?: string): Promise<string> {
+  async saveFeedback(
+    userId: string,
+    type: string,
+    interactionId: string,
+    rating: number,
+    comment?: string
+  ): Promise<string> {
     const query = `
       INSERT INTO feedback (user_id, interaction_type, interaction_id, rating, comment)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id
     `;
-    const res = await this.pool.query(query, [userId, type, interactionId, rating, comment || null]);
+    const res = await this.pool.query(query, [
+      userId,
+      type,
+      interactionId,
+      rating,
+      comment || null,
+    ]);
     return res.rows[0].id;
   }
 
@@ -98,7 +111,7 @@ export class PostgresAdapter
     const zonesRes = await this.pool.query(
       `SELECT id, name, zone_type, capacity, current_occupancy FROM stadium_zones`
     );
-    
+
     contextStr += 'Stadium Layout and Crowd Status:\n';
     for (const z of zonesRes.rows) {
       const ratio = z.current_occupancy / Math.max(1, z.capacity);
@@ -106,7 +119,7 @@ export class PostgresAdapter
     }
 
     if (zoneId) {
-      const targetZone = zonesRes.rows.find(z => z.id === zoneId);
+      const targetZone = zonesRes.rows.find((z) => z.id === zoneId);
       if (targetZone) {
         contextStr += `\nFan Current Location: Fan is currently at "${targetZone.name}" (${zoneId}).\n`;
       }
@@ -116,7 +129,8 @@ export class PostgresAdapter
     contextStr += '\nGeneral Policies:\n';
     contextStr += '- Bag Policy: Only clear bags smaller than 12x6x12 inches are allowed.\n';
     contextStr += '- MedLife Stadium has gates A, B, C, D. Gate D is VIP only.\n';
-    contextStr += '- First Aid / Medical: Stations are located at Medical Station Alpha (level 0) and Medical Station Beta (level 2).\n';
+    contextStr +=
+      '- First Aid / Medical: Stations are located at Medical Station Alpha (level 0) and Medical Station Beta (level 2).\n';
     contextStr += '- Opening hours: Gates open 3 hours prior to kickoff.\n';
     contextStr += '- Re-entry: No re-entry is permitted once ticket is scanned.\n';
 

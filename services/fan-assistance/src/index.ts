@@ -25,16 +25,19 @@ const app = express();
 const server = http.createServer(app);
 
 // Express middlewares
-app.use(helmet({
-  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+  })
+);
 app.use(cors({ origin: config.cors.origins, credentials: true }));
 app.use(express.json());
 
 // Express REST Health check endpoint
 app.get('/api/v1/health', async (req, res) => {
   const uptime = process.uptime();
-  const dependencies: { name: string; status: 'connected' | 'disconnected'; latencyMs?: number }[] = [];
+  const dependencies: { name: string; status: 'connected' | 'disconnected'; latencyMs?: number }[] =
+    [];
   let overallStatus: string = 'healthy';
 
   try {
@@ -152,7 +155,9 @@ const bootstrap = async () => {
     );
 
     server.listen(config.service.port, () => {
-      logger.info(`Fan Assistance GraphQL server active at http://localhost:${config.service.port}/graphql`);
+      logger.info(
+        `Fan Assistance GraphQL server active at http://localhost:${config.service.port}/graphql`
+      );
     });
   } catch (err) {
     logger.error('GraphQL Service bootstrap failed:', err);

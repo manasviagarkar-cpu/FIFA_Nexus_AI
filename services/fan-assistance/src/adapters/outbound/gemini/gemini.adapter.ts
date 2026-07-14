@@ -13,11 +13,17 @@ export class GeminiAdapter implements GeminiPort {
       // Use the official SDK syntax
       this.ai = new GoogleGenerativeAI(config.gemini.apiKey);
     } else {
-      logger.warn('GEMINI_API_KEY is not defined. Fan Assistance Gemini queries will fall back to mocked answers.');
+      logger.warn(
+        'GEMINI_API_KEY is not defined. Fan Assistance Gemini queries will fall back to mocked answers.'
+      );
     }
   }
 
-  async translateText(text: string, targetLanguage: string, context?: string): Promise<{ translatedText: string; sourceLanguage: string; confidence: number }> {
+  async translateText(
+    text: string,
+    targetLanguage: string,
+    context?: string
+  ): Promise<{ translatedText: string; sourceLanguage: string; confidence: number }> {
     if (!this.ai) {
       logger.info('Gemini API key missing. Mocking translation output.');
       return {
@@ -117,14 +123,17 @@ export class GeminiAdapter implements GeminiPort {
 
       return {
         answer: result.answer || 'I am sorry, I could not formulate an answer.',
-        sources: result.sources || [{ title: 'Official Stadium FAQ', type: 'official_faq', relevance: 0.8 }],
+        sources: result.sources || [
+          { title: 'Official Stadium FAQ', type: 'official_faq', relevance: 0.8 },
+        ],
         relatedQueries: result.relatedQueries || [],
         accessibilityNotes: result.accessibilityNotes,
       };
     } catch (err: any) {
       logger.error('Gemini query execution error:', err);
       return {
-        answer: 'I am experiencing connection issues. Please locate a physical stadium volunteer or info booth.',
+        answer:
+          'I am experiencing connection issues. Please locate a physical stadium volunteer or info booth.',
         sources: [{ title: 'Emergency Fallback Support', type: 'policy_document', relevance: 1.0 }],
         relatedQueries: ['Where is the nearest medical station?'],
       };

@@ -8,7 +8,16 @@ export const createTranslationResolver = (translationService: TranslationUseCase
     Query: {
       translate: async (
         _: any,
-        { input }: { input: { text: string; sourceLanguage?: string; targetLanguage: string; context?: string } },
+        {
+          input,
+        }: {
+          input: {
+            text: string;
+            sourceLanguage?: string;
+            targetLanguage: string;
+            context?: string;
+          };
+        },
         context: { user?: JWTPayload }
       ) => {
         // Enforce basic auth check

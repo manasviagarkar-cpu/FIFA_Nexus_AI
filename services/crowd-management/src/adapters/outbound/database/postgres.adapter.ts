@@ -101,7 +101,7 @@ export class PostgresAdapter
       ORDER BY cp.zone_id, cp.predicted_at DESC
     `;
     const res = await this.pool.query(query);
-    return res.rows.map(row => this.rowToPrediction(row));
+    return res.rows.map((row) => this.rowToPrediction(row));
   }
 
   async getLatestPredictionForZone(zoneId: string): Promise<CongestionPrediction | null> {
@@ -151,7 +151,7 @@ export class PostgresAdapter
       ORDER BY sa.created_at DESC
     `;
     const res = await this.pool.query(query);
-    return res.rows.map(row => this.rowToAlert(row));
+    return res.rows.map((row) => this.rowToAlert(row));
   }
 
   async getAlertById(alertId: string): Promise<StaffAlert | null> {
@@ -168,7 +168,12 @@ export class PostgresAdapter
     return this.rowToAlert(res.rows[0]);
   }
 
-  async updateAlertStatus(alertId: string, status: string, staffId?: string, acknowledgedAt?: Date): Promise<void> {
+  async updateAlertStatus(
+    alertId: string,
+    status: string,
+    staffId?: string,
+    acknowledgedAt?: Date
+  ): Promise<void> {
     const query = `
       UPDATE staff_alerts
       SET status = $1, acknowledged_by = $2, acknowledged_at = $3
@@ -180,7 +185,9 @@ export class PostgresAdapter
   // ============================================================================
   // ZoneRepository
   // ============================================================================
-  async getZoneCapacityAndOccupancy(zoneId: string): Promise<{ capacity: number; currentOccupancy: number } | null> {
+  async getZoneCapacityAndOccupancy(
+    zoneId: string
+  ): Promise<{ capacity: number; currentOccupancy: number } | null> {
     const query = `SELECT capacity, current_occupancy FROM stadium_zones WHERE id = $1`;
     const res = await this.pool.query(query, [zoneId]);
     if (res.rows.length === 0) return null;
@@ -193,7 +200,7 @@ export class PostgresAdapter
   async getAllZones() {
     const query = `SELECT id, name, zone_type, capacity, current_occupancy, latitude, longitude, level FROM stadium_zones`;
     const res = await this.pool.query(query);
-    return res.rows.map(row => ({
+    return res.rows.map((row) => ({
       id: row.id,
       name: row.name,
       zoneType: row.zone_type,

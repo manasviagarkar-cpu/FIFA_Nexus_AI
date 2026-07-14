@@ -23,7 +23,11 @@ export class EWMAConfig {
     history: HistoricalPoint[],
     alpha: number = 0.3,
     minutesAhead: number = 15
-  ): { predictedOccupancy: number; trendRate: number; trendDirection: 'increasing' | 'decreasing' | 'stable' } {
+  ): {
+    predictedOccupancy: number;
+    trendRate: number;
+    trendDirection: 'increasing' | 'decreasing' | 'stable';
+  } {
     if (history.length === 0) {
       return { predictedOccupancy: currentOccupancy, trendRate: 0, trendDirection: 'stable' };
     }
@@ -52,7 +56,8 @@ export class EWMAConfig {
     }
 
     const predictedOccupancy = Math.max(0, Math.round(currentOccupancy + trendRate * minutesAhead));
-    const trendDirection = trendRate > 0.5 ? 'increasing' : trendRate < -0.5 ? 'decreasing' : 'stable';
+    const trendDirection =
+      trendRate > 0.5 ? 'increasing' : trendRate < -0.5 ? 'decreasing' : 'stable';
 
     return {
       predictedOccupancy,

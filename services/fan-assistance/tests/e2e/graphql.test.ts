@@ -58,7 +58,8 @@ describe('Fan Assistance GraphQL E2E Tests', () => {
         ...createStadiumResolver(mockStadiumQueryService as any, mockFeedbackService as any).Query,
       },
       Mutation: {
-        ...createStadiumResolver(mockStadiumQueryService as any, mockFeedbackService as any).Mutation,
+        ...createStadiumResolver(mockStadiumQueryService as any, mockFeedbackService as any)
+          .Mutation,
       },
     };
 
@@ -99,9 +100,7 @@ describe('Fan Assistance GraphQL E2E Tests', () => {
       }
     `;
 
-    const res = await request(app)
-      .post('/graphql')
-      .send({ query });
+    const res = await request(app).post('/graphql').send({ query });
 
     expect(res.body.errors).toBeDefined();
     expect(res.body.errors[0].extensions.code).toBe('UNAUTHENTICATED');

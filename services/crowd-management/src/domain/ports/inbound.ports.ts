@@ -1,7 +1,11 @@
 import { SensorReading, CongestionPrediction, StaffAlert } from '@shared/crowd';
 
 export interface SensorIngestionUseCase {
-  ingest(readings: SensorReading[], sourceSystem: string, batchId: string): Promise<{
+  ingest(
+    readings: SensorReading[],
+    sourceSystem: string,
+    batchId: string
+  ): Promise<{
     processedCount: number;
     rejectedCount: number;
     batchId: string;
@@ -19,5 +23,7 @@ export interface CrowdPredictionUseCase {
 export interface AlertUseCase {
   getActiveAlerts(): Promise<StaffAlert[]>;
   acknowledgeAlert(alertId: string, staffId: string, notes?: string): Promise<StaffAlert>;
-  triggerAlert(alert: Omit<StaffAlert, 'alertId' | 'status' | 'createdAt' | 'altText'>): Promise<StaffAlert>;
+  triggerAlert(
+    alert: Omit<StaffAlert, 'alertId' | 'status' | 'createdAt' | 'altText'>
+  ): Promise<StaffAlert>;
 }

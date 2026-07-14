@@ -1,29 +1,2105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIFA Nexus AI - Smart Stadium</title>
-    <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; color: #333; }
-        .container { text-align: center; padding: 40px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-        h1 { color: #0056b3; margin-bottom: 20px; }
-        p { font-size: 1.1em; line-height: 1.6; }
-        .api-link { margin-top: 30px; }
-        .api-link a { color: #007bff; text-decoration: none; font-weight: bold; }
-        .api-link a:hover { text-decoration: underline; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIFA Nexus AI - Smart Stadium Operations & Fan Experience</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0a0f1d;
+      --bg-card: rgba(22, 30, 49, 0.7);
+      --bg-card-hover: rgba(30, 41, 67, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --primary: #00f2fe;
+      --primary-hover: #4facfe;
+      --secondary: #00ff87;
+      --accent: #ff007f;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --glow-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(15, 32, 67, 0.5) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Container & Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styling */
+    aside {
+      background: rgba(10, 15, 29, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+    }
+
+    .brand-logo {
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #000;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+
+    .brand-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #fff, var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex-grow: 1;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-align: left;
+      transition: all 0.3s ease;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-main);
+    }
+
+    .nav-btn.active {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      color: var(--primary);
+      box-shadow: var(--glow-shadow);
+    }
+
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .auth-badge {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .auth-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .auth-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    /* Main Content Styling */
+    main {
+      padding: 2.5rem;
+      overflow-y: auto;
+      height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .service-statuses {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .status-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 30px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-dot.online { background-color: var(--success); box-shadow: 0 0 10px var(--success); }
+    .status-dot.offline { background-color: var(--danger); box-shadow: 0 0 10px var(--danger); }
+    .status-dot.unknown { background-color: var(--text-muted); }
+
+    /* Dashboard Grid Panels */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(0, 242, 254, 0.2);
+    }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--primary);
+    }
+
+    .card-title svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* Grid layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .grid-1-2 {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 1.5rem;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      background: rgba(10, 15, 29, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-main);
+      padding: 0.85rem 1rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.85rem 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--text-muted);
+      box-shadow: none;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--secondary), #00d27a);
+    }
+
+    .btn-success:hover {
+      box-shadow: 0 5px 15px rgba(0, 255, 135, 0.4);
+    }
+
+    .btn:disabled {
+      background: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      opacity: 0.5;
+    }
+
+    /* Option pills */
+    .pills-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .pill-checkbox {
+      display: none;
+    }
+
+    .pill-label {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0.4rem 1rem;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .pill-label:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+    }
+
+    .pill-checkbox:checked + .pill-label {
+      background: rgba(0, 242, 254, 0.1);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Settings & Auth Config */
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Wayfinding Tab Specifics */
+    .stadium-map-placeholder {
+      border: 1px dashed var(--border-color);
+      border-radius: 12px;
+      height: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .stadium-svg {
+      width: 90%;
+      height: 90%;
+      max-height: 340px;
+    }
+
+    .stadium-node {
+      cursor: pointer;
+      transition: filter 0.2s ease;
+    }
+
+    .stadium-node:hover {
+      filter: brightness(1.3);
+    }
+
+    .route-step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 450px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .route-step {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .step-number {
+      background: var(--bg-dark);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .step-info {
+      flex-grow: 1;
+    }
+
+    .step-instruction {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .step-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .density-badge {
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .density-low { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .density-medium { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .density-high { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    .summary-metric {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 0;
+    }
+
+    .summary-metric:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-value {
+      font-weight: 600;
+    }
+
+    /* Crowd Management Tab Specifics */
+    .live-stream-logger {
+      background: #050811;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      height: 280px;
+      overflow-y: auto;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.85rem;
+      padding: 1rem;
+      color: var(--secondary);
+    }
+
+    .log-entry {
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .log-timestamp {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .log-message {
+      word-break: break-all;
+    }
+
+    .prediction-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .prediction-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .prediction-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0.25rem 0;
+    }
+
+    .prediction-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .alerts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .alert-item {
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--text-muted);
+      border-radius: 8px;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.01);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .alert-item.critical { border-left-color: var(--danger); background: rgba(239, 68, 68, 0.03); }
+    .alert-item.warning { border-left-color: var(--warning); background: rgba(245, 158, 11, 0.03); }
+    .alert-item.info { border-left-color: var(--primary); background: rgba(0, 242, 254, 0.03); }
+
+    .alert-details {
+      flex-grow: 1;
+    }
+
+    .alert-msg {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .alert-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Fan Assistance Tab Specifics */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 520px;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      background: rgba(10, 15, 29, 0.4);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-messages {
+      flex-grow: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .chat-bubble {
+      max-width: 75%;
+      padding: 1rem;
+      border-radius: 14px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .chat-bubble.ai {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      align-self: flex-start;
+      border-top-left-radius: 0;
+    }
+
+    .chat-bubble.user {
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: #000;
+      align-self: flex-end;
+      border-top-right-radius: 0;
+      font-weight: 500;
+    }
+
+    .chat-bubble .sources {
+      margin-top: 0.75rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .chat-bubble .source-link {
+      color: var(--primary);
+      text-decoration: none;
+      margin-right: 0.5rem;
+      display: inline-block;
+    }
+
+    .chat-bubble .source-link:hover {
+      text-decoration: underline;
+    }
+
+    .chat-input-bar {
+      border-top: 1px solid var(--border-color);
+      padding: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      background: rgba(10, 15, 29, 0.8);
+    }
+
+    .chat-input-bar input {
+      flex-grow: 1;
+    }
+
+    .chat-input-bar button {
+      width: auto;
+      padding: 0 1.5rem;
+    }
+
+    .suggested-questions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .suggested-btn {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.4rem 0.85rem;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .suggested-btn:hover {
+      background: rgba(0, 242, 254, 0.05);
+      border-color: var(--primary);
+      color: var(--text-main);
+    }
+
+    /* Feedback Modal & Styling */
+    .feedback-panel {
+      margin-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .stars-rating {
+      display: flex;
+      gap: 0.2rem;
+    }
+
+    .star {
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: color 0.1s ease;
+      font-size: 1.1rem;
+    }
+
+    .star.selected {
+      color: var(--warning);
+    }
+
+    /* Custom slider */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .slider-val {
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 700;
+      color: var(--primary);
+      min-width: 40px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+      aside {
+        display: none; /* simple hidden sidebar on small screens for demo simplicity */
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to FIFA Nexus AI</h1>
-        <p>Your Smart Stadium Operations and Fan Experience Platform is deployed!</p>
-        <p>This is a placeholder page. The backend API services are running and accessible.</p>
-        <div class="api-link">
-            <p>Access the Wayfinding Service API at: <a href="/api/v1/health-wayfinding" target="_blank">/api/v1/health-wayfinding</a></p>
-            <p>Access the Crowd Management Service API at: <a href="/api/v1/health" target="_blank">/api/v1/health</a></p>
-            <p>Access the Fan Assistance GraphQL API at: <a href="/graphql" target="_blank">/graphql</a></p>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div class="brand">
+        <div class="brand-logo">FN</div>
+        <div class="brand-name">FIFA Nexus AI</div>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" onclick="switchTab('wayfinding')">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+          Wayfinding Calculator
+        </button>
+        <button class="nav-btn" onclick="switchTab('crowd')">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" /></svg>
+          Crowd Management
+        </button>
+        <button class="nav-btn" onclick="switchTab('assistance')">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+          Fan AI Assistant
+        </button>
+        <button class="nav-btn" onclick="switchTab('settings')">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          System Config
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="auth-badge">
+          <span class="auth-label">Active Role</span>
+          <span id="sidebar-role-display" class="auth-value">Fan</span>
         </div>
-    </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Content -->
+    <main>
+      <!-- Top header displaying title and service status pills -->
+      <header>
+        <h1 id="page-title">Wayfinding Route Calculator</h1>
+        <div class="service-statuses">
+          <div class="status-pill">
+            <span class="status-dot unknown" id="status-wayfinding"></span>
+            Wayfinding
+          </div>
+          <div class="status-pill">
+            <span class="status-dot unknown" id="status-crowd"></span>
+            Crowd Mgmt
+          </div>
+          <div class="status-pill">
+            <span class="status-dot unknown" id="status-assistance"></span>
+            Fan Assist
+          </div>
+        </div>
+      </header>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 1: WAYFINDING CALCULATOR -->
+      <!-- ===================================================================== -->
+      <div id="tab-wayfinding" class="tab-content active">
+        <div class="grid-1-2">
+          <!-- Selection & Parameters Column -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-title">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+                Route Parameters
+              </div>
+              
+              <div class="form-group">
+                <label for="route-origin">Origin Node</label>
+                <select id="route-origin">
+                  <option value="">Loading stadium map nodes...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="route-destination">Destination Node</label>
+                <select id="route-destination">
+                  <option value="">Loading stadium map nodes...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Accessibility Needs</label>
+                <div class="pills-container">
+                  <input type="checkbox" id="acc-wheelchair" class="pill-checkbox" value="wheelchair">
+                  <label for="acc-wheelchair" class="pill-label">♿ Wheelchair</label>
+
+                  <input type="checkbox" id="acc-visual" class="pill-checkbox" value="visual_impairment">
+                  <label for="acc-visual" class="pill-label">👁️ Visual Impairment</label>
+
+                  <input type="checkbox" id="acc-hearing" class="pill-checkbox" value="hearing_impairment">
+                  <label for="acc-hearing" class="pill-label">👂 Hearing Impairment</label>
+
+                  <input type="checkbox" id="acc-mobility" class="pill-checkbox" value="mobility_limited">
+                  <label for="acc-mobility" class="pill-label">🦯 Mobility Limited</label>
+
+                  <input type="checkbox" id="acc-elderly" class="pill-checkbox" value="elderly">
+                  <label for="acc-elderly" class="pill-label">👴 Elderly</label>
+
+                  <input type="checkbox" id="acc-family" class="pill-checkbox" value="family_with_children">
+                  <label for="acc-family" class="pill-label">👶 Family with Kids</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="route-preference">Routing Preference</label>
+                <select id="route-preference">
+                  <option value="fastest" selected>Fastest Path (A* distance)</option>
+                  <option value="least_crowded">Least Crowded (Avoid density)</option>
+                  <option value="accessible">Prioritize Accessible Elements</option>
+                  <option value="scenic">Scenic Path</option>
+                  <option value="family_friendly">Family Friendly Path</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="route-density-threshold">Max acceptable density</label>
+                <div class="slider-container">
+                  <input type="range" id="route-density-threshold" min="0" max="1" step="0.05" value="0.85">
+                  <span class="slider-val" id="route-density-threshold-val">0.85</span>
+                </div>
+              </div>
+
+              <button class="btn" id="btn-calculate-route" onclick="calculateRoute()">
+                Calculate Optimal Route
+              </button>
+            </div>
+
+            <div class="card" id="route-summary-card" style="display: none;">
+              <div class="card-title">Route Metrics</div>
+              <div class="summary-metric">
+                <span class="summary-label">Estimated Time:</span>
+                <span class="summary-value" id="route-time-val">-</span>
+              </div>
+              <div class="summary-metric">
+                <span class="summary-label">Total Distance:</span>
+                <span class="summary-value" id="route-distance-val">-</span>
+              </div>
+              <div class="summary-metric">
+                <span class="summary-label">Average Density:</span>
+                <span class="summary-value" id="route-density-val">-</span>
+              </div>
+              <div class="summary-metric">
+                <span class="summary-label">Accessibility:</span>
+                <span class="summary-value" id="route-accessibility-val">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Stadium Layout / Directions Column -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-title">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                Stadium Zone Visualizer
+              </div>
+              <div class="stadium-map-placeholder" id="stadium-visualizer-container">
+                <!-- SVG map will be rendered here dynamically -->
+                <svg class="stadium-svg" viewBox="0 0 500 300" id="stadium-svg">
+                  <!-- Outer structure -->
+                  <ellipse cx="250" cy="150" rx="220" ry="120" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6" />
+                  <ellipse cx="250" cy="150" rx="160" ry="80" fill="none" stroke="rgba(0, 242, 254, 0.2)" stroke-width="4" />
+                  <!-- Field -->
+                  <rect x="180" y="110" width="140" height="80" fill="rgba(16, 185, 129, 0.1)" stroke="rgba(16, 185, 129, 0.4)" stroke-width="2" rx="4" />
+                  
+                  <text x="250" y="155" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="12" font-weight="bold">LUSAIL STADIUM</text>
+                  <g id="stadium-svg-nodes"></g>
+                  <path id="stadium-svg-route" fill="none" stroke="var(--primary)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 4" style="display:none;" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="card" id="route-directions-card" style="display: none;">
+              <div class="card-title">Step-by-Step Directions</div>
+              <div class="route-step-list" id="route-steps">
+                <!-- Steps appended here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 2: CROWD MANAGEMENT -->
+      <!-- ===================================================================== -->
+      <div id="tab-crowd" class="tab-content">
+        <div class="grid-2">
+          <!-- Ingestion & Trigger Column -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-title">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                Turnstile Sensor Ingestion (Simulation)
+              </div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                Simulate stadium entries/exits at gate sensors. Requires <strong>Staff</strong> or <strong>Admin</strong> privileges.
+              </p>
+              
+              <div class="form-group">
+                <label for="sensor-id">Sensor ID</label>
+                <input type="text" id="sensor-id" value="turn-gate-a-1" placeholder="e.g. turn-gate-a-1">
+              </div>
+
+              <div class="form-group">
+                <label for="sensor-zone">Target Zone / Gate ID</label>
+                <select id="sensor-zone">
+                  <option value="gate-a">Gate A (VIP & Staff Entrance)</option>
+                  <option value="gate-b">Gate B (General Admission East)</option>
+                  <option value="concourse-1">Level 1 Concourse</option>
+                  <option value="seating-lower-east">Lower East Seating</option>
+                </select>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label for="sensor-entries">Entries Count</label>
+                  <input type="number" id="sensor-entries" value="50" min="0">
+                </div>
+                <div class="form-group">
+                  <label for="sensor-exits">Exits Count</label>
+                  <input type="number" id="sensor-exits" value="5" min="0">
+                </div>
+              </div>
+
+              <button class="btn btn-success" id="btn-ingest-sensor" onclick="ingestSensorData()">
+                Transmit Sensor Reading
+              </button>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                Operational Pipelines
+              </div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                Manually trigger the EWMA prediction pipeline to recalculate density levels and generate warnings immediately.
+              </p>
+              <button class="btn btn-secondary" id="btn-trigger-prediction" onclick="triggerPredictionCycle()">
+                ⚡ Force EWMA Prediction Cycle
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Feed, Predictions & Alerts Column -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-title" style="justify-content: space-between;">
+                <span>Live Stream & EWMA Predictions</span>
+                <button class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.8rem;" id="btn-ws-connect" onclick="toggleWebSocket()">
+                  Connect Stream
+                </button>
+              </div>
+              <div class="prediction-grid">
+                <div class="prediction-card">
+                  <div class="prediction-val" id="pred-active-gates">0</div>
+                  <div class="prediction-lbl">Active Gates</div>
+                </div>
+                <div class="prediction-card">
+                  <div class="prediction-val" id="pred-total-occupancy">0</div>
+                  <div class="prediction-lbl">Est. Occupancy</div>
+                </div>
+                <div class="prediction-card">
+                  <div class="prediction-val" id="pred-peak-zone">-</div>
+                  <div class="prediction-lbl">Peak Zone</div>
+                </div>
+              </div>
+              <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin: 1.25rem 0 0.5rem 0;">Live Sensor Stream Log</h4>
+              <div class="live-stream-logger" id="live-stream-log">
+                <div class="log-entry"><span class="log-timestamp">[System]</span><span class="log-message">Ready to stream. Click "Connect Stream" (Requires authenticated Staff/Admin JWT).</span></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                Active Density Warnings
+              </div>
+              <div class="alerts-list" id="active-alerts">
+                <div style="text-align: center; color: var(--text-muted); padding: 2rem 0;">No active alerts. Connect stream to monitor live.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 3: FAN AI ASSISTANT -->
+      <!-- ===================================================================== -->
+      <div id="tab-assistance" class="tab-content">
+        <div class="card" style="padding: 1rem;">
+          <div class="chat-container">
+            <div class="chat-header">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span class="status-dot online"></span>
+                <span style="font-weight: 600;">FIFA Nexus AI Assistant</span>
+              </div>
+              
+              <div style="display: flex; gap: 1rem; align-items: center;">
+                <label for="fan-lang-select" style="margin-bottom: 0; font-size: 0.75rem;">Lang</label>
+                <select id="fan-lang-select" style="padding: 0.35rem 1.5rem 0.35rem 0.75rem; font-size: 0.85rem; width: 140px;" onchange="updateChatLanguage()">
+                  <option value="en" selected>English</option>
+                  <option value="es">Español (Spanish)</option>
+                  <option value="fr">Français (French)</option>
+                  <option value="ar">العربية (Arabic)</option>
+                  <option value="pt">Português (Portuguese)</option>
+                  <option value="de">Deutsch (German)</option>
+                  <option value="ja">日本語 (Japanese)</option>
+                  <option value="zh">中文 (Chinese)</option>
+                  <option value="ko">한국어 (Korean)</option>
+                  <option value="hi">हिन्दी (Hindi)</option>
+                  <option value="it">Italiano (Italian)</option>
+                  <option value="nl">Nederlands (Dutch)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="chat-messages" id="chat-box">
+              <div class="chat-bubble ai">
+                Hello! I am your AI assistant for the 2026 FIFA World Cup Lusail Stadium. Ask me anything about tickets, seating accessibility, matches, concessions, or directions around the ground!
+              </div>
+            </div>
+
+            <div class="chat-input-bar">
+              <input type="text" id="chat-input" placeholder="Type your query here..." onkeypress="handleChatKey(event)">
+              <button class="btn" id="btn-chat-send" onclick="sendChatMessage()" style="width: auto; padding: 0 1.75rem;">Ask AI</button>
+            </div>
+          </div>
+
+          <div class="suggested-questions">
+            <button class="suggested-btn" onclick="useSuggestedQuery('Where is the nearest wheelchair ramp from Gate A?')">♿ Wheelchair Ramp</button>
+            <button class="suggested-btn" onclick="useSuggestedQuery('Which match is playing at Lusail Stadium today?')">⚽ Stadium Match Info</button>
+            <button class="suggested-btn" onclick="useSuggestedQuery('Where can I buy vegetarian concessions?')">🍔 Food Options</button>
+            <button class="suggested-btn" onclick="useSuggestedQuery('What emergency protocols are active if there is a warning?')">⚠️ Emergency Warnings</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 4: SYSTEM CONFIG -->
+      <!-- ===================================================================== -->
+      <div id="tab-settings" class="tab-content">
+        <div class="card">
+          <div class="card-title">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+            Microservices Backend Integration
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+            Configure URLs pointing to your microservices backend deployments. By default, these URLs are dynamically calculated.
+          </p>
+
+          <div class="config-grid">
+            <div class="form-group">
+              <label for="url-wayfinding">Wayfinding Service URL (FastAPI)</label>
+              <input type="text" id="url-wayfinding" placeholder="http://localhost:8001">
+            </div>
+            <div class="form-group">
+              <label for="url-crowd">Crowd Management URL (Express)</label>
+              <input type="text" id="url-crowd" placeholder="http://localhost:8002">
+            </div>
+            <div class="form-group">
+              <label for="url-assistance">Fan Assistance URL (GraphQL)</label>
+              <input type="text" id="url-assistance" placeholder="http://localhost:8003/graphql">
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top: 1rem;">
+            <button class="btn btn-secondary" onclick="autoDetectEndpoints()">Auto-Detect Deployments</button>
+            <button class="btn" onclick="saveConfiguration()">Save API Configuration</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 009 15c0-1.28-.246-2.504-.693-3.628m-4.078-4.077A11.956 11.956 0 0112 3c1.9 0 3.665.447 5.225 1.244m-2.188 2.188A7.488 7.488 0 0012 15.75a7.488 7.488 0 005.038-1.9m0 0A7.488 7.488 0 0112 15.75a7.488 7.488 0 01-5.038-1.9m0 0A7.488 7.488 0 0112 7.5c1.9 0 3.665.447 5.225 1.244" /></svg>
+            Dynamic JWT Identity Generator
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+            Because the microservices enforce Role-Based Access Control (RBAC) on their REST and GraphQL endpoints, this browser app uses the <strong>Web Crypto API</strong> to sign a valid JWT token on-the-fly using the shared secret.
+          </p>
+
+          <div class="config-grid">
+            <div class="form-group">
+              <label for="jwt-role">Target Role</label>
+              <select id="jwt-role" onchange="onRoleSelectChange()">
+                <option value="fan">Fan (Limited permissions)</option>
+                <option value="staff" selected>Staff (Can ingest sensors & view warnings)</option>
+                <option value="admin">Admin (All operations & configuration)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="jwt-username">Display Name</label>
+              <input type="text" id="jwt-username" value="Taylor Staff">
+            </div>
+            <div class="form-group">
+              <label for="jwt-secret">JWT Secret Signature Key</label>
+              <input type="password" id="jwt-secret" value="fifa-nexus-jwt-secret-2026-change-in-production">
+            </div>
+          </div>
+
+          <button class="btn btn-success" style="margin-top: 1rem;" onclick="generateJWT()">
+            🔐 Sign JWT & Inject Authentication Header
+          </button>
+
+          <div style="margin-top: 1.5rem;">
+            <label>Active Generated Access Token</label>
+            <textarea id="jwt-token-display" style="font-family: monospace; font-size: 0.8rem; height: 100px; margin-top: 0.5rem;" readonly></textarea>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Main JavaScript Controller -->
+  <script>
+    // State management
+    const state = {
+      role: 'staff',
+      username: 'Taylor Staff',
+      secret: 'fifa-nexus-jwt-secret-2026-change-in-production',
+      token: '',
+      wayfindingUrl: 'http://localhost:8001',
+      crowdUrl: 'http://localhost:8002',
+      assistanceUrl: 'http://localhost:8003/graphql',
+      ws: null,
+      stadiumNodes: [],
+    };
+
+    // Helper functions for tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById('tab-' + tabId).classList.add('active');
+      
+      // Select nav button
+      const navBtn = Array.from(document.querySelectorAll('.nav-btn')).find(btn => 
+        btn.getAttribute('onclick').includes(tabId)
+      );
+      if (navBtn) navBtn.classList.add('active');
+
+      // Update title
+      const titleEl = document.getElementById('page-title');
+      if (tabId === 'wayfinding') titleEl.innerText = 'Wayfinding Route Calculator';
+      else if (tabId === 'crowd') titleEl.innerText = 'Smart Crowd Management';
+      else if (tabId === 'assistance') titleEl.innerText = 'Multilingual Fan Assistance';
+      else if (tabId === 'settings') titleEl.innerText = 'System Configuration';
+    }
+
+    // Role-specific defaults
+    function onRoleSelectChange() {
+      const role = document.getElementById('jwt-role').value;
+      const userField = document.getElementById('jwt-username');
+      if (role === 'admin') {
+        userField.value = 'Jordan Admin';
+      } else if (role === 'staff') {
+        userField.value = 'Taylor Staff';
+      } else {
+        userField.value = 'Alex Fan';
+      }
+    }
+
+    // BASE64 URL encoding helper
+    function encodeBase64Url(str) {
+      return btoa(unescape(encodeURIComponent(str)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+    }
+
+    // Web Crypto JWT Signer (HS256)
+    async function signJwtHS256(payload, secret) {
+      const header = { alg: "HS256", typ: "JWT" };
+      const enc = new TextEncoder();
+      const encodedHeader = encodeBase64Url(JSON.stringify(header));
+      const encodedPayload = encodeBase64Url(JSON.stringify(payload));
+      const dataToSign = `${encodedHeader}.${encodedPayload}`;
+
+      try {
+        const key = await crypto.subtle.importKey(
+          "raw",
+          enc.encode(secret),
+          { name: "HMAC", hash: "SHA-256" },
+          false,
+          ["sign"]
+        );
+        const signature = await crypto.subtle.sign(
+          "HMAC",
+          key,
+          enc.encode(dataToSign)
+        );
+        const signatureBase64Url = btoa(String.fromCharCode(...new Uint8Array(signature)))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+        
+        return `${dataToSign}.${signatureBase64Url}`;
+      } catch (err) {
+        console.error("JWT sign error:", err);
+        return null;
+      }
+    }
+
+    // Generate token trigger
+    async function generateJWT() {
+      const role = document.getElementById('jwt-role').value;
+      const username = document.getElementById('jwt-username').value;
+      const secret = document.getElementById('jwt-secret').value;
+      
+      const now = Math.floor(Date.now() / 1000);
+      const payload = {
+        sub: role === 'admin' ? 'admin-1' : role === 'staff' ? 'staff-1' : 'fan-1',
+        name: username,
+        email: `${role}@stadium.fifa.com`,
+        role: role,
+        iat: now,
+        exp: now + 3600 * 24, // 24 hours
+        iss: "fifa-nexus-frontend"
+      };
+
+      const token = await signJwtHS256(payload, secret);
+      if (token) {
+        state.token = token;
+        state.role = role;
+        state.username = username;
+        state.secret = secret;
+        
+        localStorage.setItem('fifa_jwt_token', token);
+        localStorage.setItem('fifa_jwt_role', role);
+        localStorage.setItem('fifa_jwt_username', username);
+        
+        document.getElementById('jwt-token-display').value = token;
+        document.getElementById('sidebar-role-display').innerText = role.toUpperCase();
+        document.getElementById('sidebar-role-display').style.color = 
+          role === 'admin' ? 'var(--accent)' : role === 'staff' ? 'var(--secondary)' : 'var(--primary)';
+        
+        showNotification(`Signed as ${role.toUpperCase()} and authenticated successfully!`);
+        testHealthCheck();
+      } else {
+        alert("Failed to sign JWT with Web Crypto API.");
+      }
+    }
+
+    function showNotification(msg) {
+      console.log("[Notification]", msg);
+    }
+
+    // Configure API URLs
+    function autoDetectEndpoints() {
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        document.getElementById('url-wayfinding').value = 'http://localhost:8001';
+        document.getElementById('url-crowd').value = 'http://localhost:8002';
+        document.getElementById('url-assistance').value = 'http://localhost:8003/graphql';
+      } else if (hostname.includes('onrender.com')) {
+        const prefix = hostname.split('.onrender.com')[0];
+        const basePrefix = prefix.replace(/-frontend$/, '').replace(/-web$/, '');
+        document.getElementById('url-wayfinding').value = `https://${basePrefix}-wayfinding.onrender.com`;
+        document.getElementById('url-crowd').value = `https://${basePrefix}-crowd-management.onrender.com`;
+        document.getElementById('url-assistance').value = `https://${basePrefix}-fan-assistance.onrender.com/graphql`;
+      }
+    }
+
+    function saveConfiguration() {
+      state.wayfindingUrl = document.getElementById('url-wayfinding').value || 'http://localhost:8001';
+      state.crowdUrl = document.getElementById('url-crowd').value || 'http://localhost:8002';
+      state.assistanceUrl = document.getElementById('url-assistance').value || 'http://localhost:8003/graphql';
+
+      localStorage.setItem('fifa_url_wayfinding', state.wayfindingUrl);
+      localStorage.setItem('fifa_url_crowd', state.crowdUrl);
+      localStorage.setItem('fifa_url_assistance', state.assistanceUrl);
+
+      showNotification("Service URLs configured.");
+      testHealthCheck();
+      loadStadiumMap();
+    }
+
+    // Test API Health & update indicators
+    async function testHealthCheck() {
+      const headers = state.token ? { 'Authorization': `Bearer ${state.token}` } : {};
+
+      // Wayfinding health check
+      const dotWF = document.getElementById('status-wayfinding');
+      try {
+        const res = await fetch(`${state.wayfindingUrl}/api/v1/health-wayfinding`, { headers });
+        if (res.ok) dotWF.className = 'status-dot online';
+        else dotWF.className = 'status-dot offline';
+      } catch {
+        dotWF.className = 'status-dot offline';
+      }
+
+      // Crowd management health check
+      const dotCM = document.getElementById('status-crowd');
+      try {
+        const res = await fetch(`${state.crowdUrl}/api/v1/health`, { headers });
+        if (res.ok) dotCM.className = 'status-dot online';
+        else dotCM.className = 'status-dot offline';
+      } catch {
+        dotCM.className = 'status-dot offline';
+      }
+
+      // Fan assistance health check
+      const dotAS = document.getElementById('status-assistance');
+      try {
+        // Apollo health check via query or normal ping
+        const res = await fetch(`${state.assistanceUrl.replace('/graphql', '')}/api/v1/health`, { headers });
+        if (res.ok) dotAS.className = 'status-dot online';
+        else dotAS.className = 'status-dot offline';
+      } catch {
+        dotAS.className = 'status-dot offline';
+      }
+    }
+
+    // =====================================================================
+    // WAYFINDING FUNCTIONALITY
+    // =====================================================================
+    async function loadStadiumMap() {
+      const originSel = document.getElementById('route-origin');
+      const destSel = document.getElementById('route-destination');
+      const headers = state.token ? { 'Authorization': `Bearer ${state.token}` } : {};
+
+      try {
+        const res = await fetch(`${state.wayfindingUrl}/api/v1/stadium/map`, { headers });
+        const body = await res.json();
+        if (body.success && body.data) {
+          const nodes = body.data.nodes || [];
+          state.stadiumNodes = nodes;
+          
+          originSel.innerHTML = '<option value="">Select origin...</option>';
+          destSel.innerHTML = '<option value="">Select destination...</option>';
+          
+          nodes.forEach(node => {
+            const opt1 = document.createElement('option');
+            opt1.value = node.id;
+            opt1.innerText = `${node.name} (Lvl ${node.coordinate.level})`;
+            originSel.appendChild(opt1);
+
+            const opt2 = document.createElement('option');
+            opt2.value = node.id;
+            opt2.innerText = `${node.name} (Lvl ${node.coordinate.level})`;
+            destSel.appendChild(opt2);
+          });
+
+          renderStadiumSVG(nodes);
+        } else {
+          originSel.innerHTML = '<option value="">Could not load stadium map nodes</option>';
+          destSel.innerHTML = '<option value="">Could not load stadium map nodes</option>';
+        }
+      } catch (err) {
+        originSel.innerHTML = '<option value="">Error contacting wayfinding server</option>';
+        destSel.innerHTML = '<option value="">Error contacting wayfinding server</option>';
+        console.error("Map retrieval failed:", err);
+      }
+    }
+
+    function renderStadiumSVG(nodes) {
+      const g = document.getElementById('stadium-svg-nodes');
+      g.innerHTML = '';
+
+      // Project spherical coordinates slightly or just map latitude/longitude to 2D
+      // Let's find min/max values to scale
+      let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+      nodes.forEach(n => {
+        if (n.coordinate.latitude < minLat) minLat = n.coordinate.latitude;
+        if (n.coordinate.latitude > maxLat) maxLat = n.coordinate.latitude;
+        if (n.coordinate.longitude < minLon) minLon = n.coordinate.longitude;
+        if (n.coordinate.longitude > maxLon) maxLon = n.coordinate.longitude;
+      });
+
+      const latSpan = maxLat - minLat || 1;
+      const lonSpan = maxLon - minLon || 1;
+
+      nodes.forEach(node => {
+        // Map to width 500, height 300 with 40px padding
+        const x = 50 + ((node.coordinate.longitude - minLon) / lonSpan) * 400;
+        const y = 250 - ((node.coordinate.latitude - minLat) / latSpan) * 200;
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', 8);
+        
+        // Color based on density/VIP
+        let fill = 'var(--text-muted)';
+        if (node.congestionLevel === 'critical') fill = 'var(--danger)';
+        else if (node.congestionLevel === 'warning') fill = 'var(--warning)';
+        else if (node.congestionLevel === 'low') fill = 'var(--success)';
+        if (node.isVIPOnly) fill = 'var(--accent)';
+
+        circle.setAttribute('fill', fill);
+        circle.setAttribute('id', `svg-node-${node.id}`);
+        circle.setAttribute('class', 'stadium-node');
+        
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = `${node.name}\nDensity: ${(node.currentDensity*100).toFixed(0)}%`;
+        circle.appendChild(title);
+
+        circle.addEventListener('click', () => {
+          const originVal = document.getElementById('route-origin').value;
+          if (!originVal) {
+            document.getElementById('route-origin').value = node.id;
+          } else {
+            document.getElementById('route-destination').value = node.id;
+          }
+        });
+
+        g.appendChild(circle);
+      });
+    }
+
+    async function calculateRoute() {
+      const origin = document.getElementById('route-origin').value;
+      const destination = document.getElementById('route-destination').value;
+      const preference = document.getElementById('route-preference').value;
+      const maxDensity = parseFloat(document.getElementById('route-density-threshold').value);
+
+      if (!origin || !destination) {
+        alert("Please select both Origin and Destination nodes.");
+        return;
+      }
+
+      // Collect accessibility checks
+      const accessibilityNeeds = [];
+      if (document.getElementById('acc-wheelchair').checked) accessibilityNeeds.push('wheelchair');
+      if (document.getElementById('acc-visual').checked) accessibilityNeeds.push('visual_impairment');
+      if (document.getElementById('acc-hearing').checked) accessibilityNeeds.push('hearing_impairment');
+      if (document.getElementById('acc-mobility').checked) accessibilityNeeds.push('mobility_limited');
+      if (document.getElementById('acc-elderly').checked) accessibilityNeeds.push('elderly');
+      if (document.getElementById('acc-family').checked) accessibilityNeeds.push('family_with_children');
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${state.token}`
+      };
+
+      const body = {
+        origin,
+        destination,
+        accessibility_needs: accessibilityNeeds,
+        is_vip: state.role === 'admin',
+        preference,
+        max_density_threshold: maxDensity
+      };
+
+      try {
+        const btn = document.getElementById('btn-calculate-route');
+        btn.innerText = 'Calculating Optimal Path...';
+        btn.disabled = true;
+
+        const res = await fetch(`${state.wayfindingUrl}/api/v1/routes/calculate`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        btn.innerText = 'Calculate Optimal Route';
+        btn.disabled = false;
+
+        if (data.success && data.data) {
+          const route = data.data;
+          
+          // Show metrics
+          document.getElementById('route-summary-card').style.display = 'block';
+          document.getElementById('route-time-val').innerText = `${(route.totalTimeSeconds / 60).toFixed(1)} mins`;
+          document.getElementById('route-distance-val').innerText = `${route.totalDistanceMeters.toFixed(0)} meters`;
+          document.getElementById('route-density-val').innerText = `${(route.averageDensity * 100).toFixed(0)}%`;
+          document.getElementById('route-accessibility-val').innerText = route.accessibilityNotes || 'No special requirements';
+
+          // Render step-by-step
+          document.getElementById('route-directions-card').style.display = 'block';
+          const stepsDiv = document.getElementById('route-steps');
+          stepsDiv.innerHTML = '';
+
+          route.path.forEach(step => {
+            const stepEl = document.createElement('div');
+            stepEl.className = 'route-step';
+
+            const numEl = document.createElement('div');
+            numEl.className = 'step-number';
+            numEl.innerText = step.stepNumber;
+            stepEl.appendChild(numEl);
+
+            const infoEl = document.createElement('div');
+            infoEl.className = 'step-info';
+
+            const instrEl = document.createElement('div');
+            instrEl.className = 'step-instruction';
+            instrEl.innerText = step.instruction;
+            infoEl.appendChild(instrEl);
+
+            const metaEl = document.createElement('div');
+            metaEl.className = 'step-meta';
+            
+            const distEl = document.createElement('span');
+            distEl.innerText = `📏 ${step.distanceFromPreviousMeters.toFixed(0)}m`;
+            metaEl.appendChild(distEl);
+
+            const densityEl = document.createElement('span');
+            densityEl.innerText = `👥 Density: ${(step.currentDensity*100).toFixed(0)}%`;
+            densityEl.className = `density-badge density-${step.congestionLevel}`;
+            metaEl.appendChild(densityEl);
+
+            infoEl.appendChild(metaEl);
+            stepEl.appendChild(infoEl);
+            stepsDiv.appendChild(stepEl);
+          });
+
+          // Draw path on visualizer
+          drawRouteOnVisualizer(route.path);
+        } else {
+          alert(`Routing calculation failed: ${data.error ? data.error.message : 'Unknown response'}`);
+        }
+      } catch (err) {
+        alert("Failed to connect to the Wayfinding Microservice. Please verify JWT or Endpoint URL.");
+        console.error(err);
+      }
+    }
+
+    function drawRouteOnVisualizer(steps) {
+      const line = document.getElementById('stadium-svg-route');
+      if (!steps || steps.length < 2) {
+        line.style.display = 'none';
+        return;
+      }
+
+      let d = '';
+      steps.forEach((step, idx) => {
+        const nodeEl = document.getElementById(`svg-node-${step.nodeId}`);
+        if (nodeEl) {
+          const cx = nodeEl.getAttribute('cx');
+          const cy = nodeEl.getAttribute('cy');
+          d += `${idx === 0 ? 'M' : 'L'} ${cx} ${cy} `;
+        }
+      });
+
+      if (d) {
+        line.setAttribute('d', d);
+        line.style.display = 'block';
+      } else {
+        line.style.display = 'none';
+      }
+    }
+
+    // =====================================================================
+    // CROWD MANAGEMENT FUNCTIONALITY
+    // =====================================================================
+    function logStream(msg, source = 'System') {
+      const logger = document.getElementById('live-stream-log');
+      const timestamp = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      
+      const tsEl = document.createElement('span');
+      tsEl.className = 'log-timestamp';
+      tsEl.innerText = `[${timestamp}]`;
+      entry.appendChild(tsEl);
+
+      const srcEl = document.createElement('span');
+      srcEl.className = 'log-message';
+      srcEl.innerHTML = `<strong>${source}:</strong> ${msg}`;
+      entry.appendChild(srcEl);
+
+      logger.appendChild(entry);
+      logger.scrollTop = logger.scrollHeight;
+    }
+
+    function toggleWebSocket() {
+      if (state.ws) {
+        state.ws.close();
+        state.ws = null;
+        document.getElementById('btn-ws-connect').innerText = 'Connect Stream';
+        logStream('WebSocket stream disconnected manually.');
+        return;
+      }
+
+      if (!state.token) {
+        alert("Please generate a token first (in System Config tab) to authenticate the WebSocket upgrade.");
+        return;
+      }
+
+      const wsUrl = state.crowdUrl.replace(/^http/, 'ws');
+      const connectUrl = `${wsUrl}/?token=${state.token}`;
+
+      logStream(`Initiating WebSocket upgrade request to ${wsUrl}...`);
+      
+      try {
+        state.ws = new WebSocket(connectUrl);
+
+        state.ws.onopen = () => {
+          document.getElementById('btn-ws-connect').innerText = 'Disconnect';
+          logStream('WebSocket Stream Active. Monitoring live crowd metrics and alerts.', 'Connected');
+          testHealthCheck();
+        };
+
+        state.ws.onmessage = (event) => {
+          const packet = JSON.parse(event.data);
+          if (packet.type === 'prediction_update') {
+            logStream(`Recv predictions update batch. Est. Occupancy: ${packet.data.metrics?.totalOccupancy || 'N/A'}.`, 'PredictionEngine');
+            updatePredictionsCards(packet.data);
+          } else if (packet.type === 'alert_new') {
+            logStream(`⚠️ RECV ALERT: ${packet.data.message}`, 'AlertEngine');
+            addAlertToList(packet.data);
+          } else {
+            logStream(event.data, 'StreamRaw');
+          }
+        };
+
+        state.ws.onclose = () => {
+          document.getElementById('btn-ws-connect').innerText = 'Connect Stream';
+          state.ws = null;
+          logStream('WebSocket stream closed by remote server or client.');
+        };
+
+        state.ws.onerror = (err) => {
+          logStream('WebSocket error: check permissions and CORS rules.', 'Error');
+          console.error(err);
+        };
+      } catch (err) {
+        logStream(`WebSocket creation error: ${err.message}`, 'Error');
+      }
+    }
+
+    function updatePredictionsCards(data) {
+      if (data && data.metrics) {
+        document.getElementById('pred-active-gates').innerText = data.metrics.activeGates || '0';
+        document.getElementById('pred-total-occupancy').innerText = data.metrics.totalOccupancy || '0';
+        document.getElementById('pred-peak-zone').innerText = data.metrics.peakZoneId?.toUpperCase() || '-';
+      }
+    }
+
+    function addAlertToList(alert) {
+      const container = document.getElementById('active-alerts');
+      // Remove placeholder
+      if (container.innerText.includes('No active alerts')) {
+        container.innerHTML = '';
+      }
+
+      const alertEl = document.createElement('div');
+      alertEl.className = `alert-item ${alert.severity || 'info'}`;
+      alertEl.id = `alert-${alert.alertId}`;
+
+      const details = document.createElement('div');
+      details.className = 'alert-details';
+      
+      const msg = document.createElement('div');
+      msg.className = 'alert-msg';
+      msg.innerText = alert.message;
+      details.appendChild(msg);
+
+      const meta = document.createElement('div');
+      meta.className = 'alert-meta';
+      meta.innerText = `Zone: ${alert.zoneId?.toUpperCase()} | Threshold: ${(alert.densityRatio*100).toFixed(0)}%`;
+      details.appendChild(meta);
+      
+      alertEl.appendChild(details);
+
+      // Acknowledge button
+      const ackBtn = document.createElement('button');
+      ackBtn.className = 'btn btn-secondary';
+      ackBtn.style.width = 'auto';
+      ackBtn.style.padding = '0.35rem 0.75rem';
+      ackBtn.style.fontSize = '0.85rem';
+      ackBtn.innerText = 'Acknowledge';
+      ackBtn.onclick = () => acknowledgeAlert(alert.alertId);
+      alertEl.appendChild(ackBtn);
+
+      container.prepend(alertEl);
+    }
+
+    async function acknowledgeAlert(alertId) {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${state.token}`
+      };
+
+      try {
+        const res = await fetch(`${state.crowdUrl}/api/v1/alerts/acknowledge`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ alertId, acknowledgedBy: state.username })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const alertEl = document.getElementById(`alert-${alertId}`);
+          if (alertEl) alertEl.remove();
+          showNotification(`Alert ${alertId} acknowledged.`);
+        } else {
+          alert("Could not acknowledge alert: " + data.error.message);
+        }
+      } catch (err) {
+        alert("Failed to acknowledge alert. Verify Staff/Admin JWT permissions.");
+      }
+    }
+
+    async function ingestSensorData() {
+      const sensorId = document.getElementById('sensor-id').value;
+      const zoneId = document.getElementById('sensor-zone').value;
+      const entriesCount = parseInt(document.getElementById('sensor-entries').value, 10);
+      const exitsCount = parseInt(document.getElementById('sensor-exits').value, 10);
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${state.token}`
+      };
+
+      const body = {
+        readings: [
+          {
+            sensorId,
+            sensorType: 'turnstile',
+            zoneId,
+            timestamp: new Date().toISOString(),
+            payload: {
+              type: 'turnstile',
+              entriesCount,
+              exitsCount,
+              periodSeconds: 60,
+              gateId: sensorId + '-gate',
+            }
+          }
+        ],
+        sourceSystem: 'turnstile-sim',
+        batchId: 'batch-' + Math.floor(Math.random() * 100000)
+      };
+
+      try {
+        const btn = document.getElementById('btn-ingest-sensor');
+        btn.innerText = 'Transmitting...';
+        btn.disabled = true;
+
+        const res = await fetch(`${state.crowdUrl}/api/v1/sensors/ingest`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body)
+        });
+        
+        btn.innerText = 'Transmit Sensor Reading';
+        btn.disabled = false;
+
+        const data = await res.json();
+        if (data.success) {
+          showNotification("Sensor metrics ingested successfully.");
+          logStream(`Transmitted ingestion metrics to ${zoneId}. Processed Count: ${data.data.processedCount}.`, 'TurnstileSimulator');
+        } else {
+          alert("Ingestion failed: " + data.error.message);
+        }
+      } catch (err) {
+        alert("Transmission failed. Make sure you are authenticated with a valid Staff/Admin role.");
+      }
+    }
+
+    async function triggerPredictionCycle() {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${state.token}`
+      };
+
+      try {
+        const btn = document.getElementById('btn-trigger-prediction');
+        btn.innerText = 'Running prediction cycle...';
+        btn.disabled = true;
+
+        const res = await fetch(`${state.crowdUrl}/api/v1/predictions/trigger`, {
+          method: 'POST',
+          headers
+        });
+        
+        btn.innerText = 'Force EWMA Prediction Cycle';
+        btn.disabled = false;
+
+        const data = await res.json();
+        if (data.success) {
+          showNotification("Prediction pipeline completed.");
+          logStream(`Manual prediction pipeline run triggered. Success: ${data.success}.`, 'PredictionEngine');
+        } else {
+          alert("Pipeline failed: " + data.error.message);
+        }
+      } catch (err) {
+        alert("Failed to run prediction pipeline. Requires Admin role permissions.");
+      }
+    }
+
+    // =====================================================================
+    // FAN AI ASSISTANT FUNCTIONALITY
+    // =====================================================================
+    let lastQueryResponseId = '';
+
+    function handleChatKey(e) {
+      if (e.key === 'Enter') {
+        sendChatMessage();
+      }
+    }
+
+    function useSuggestedQuery(queryText) {
+      document.getElementById('chat-input').value = queryText;
+      sendChatMessage();
+    }
+
+    async function sendChatMessage() {
+      const inputEl = document.getElementById('chat-input');
+      const query = inputEl.value.trim();
+      const lang = document.getElementById('fan-lang-select').value;
+      if (!query) return;
+
+      appendChatBubble(query, 'user');
+      inputEl.value = '';
+
+      // Prepare Apollo GraphQL askStadium query
+      const graphqlQuery = {
+        query: `
+          query AskStadium($input: StadiumQueryInput!) {
+            askStadium(input: $input) {
+              answer
+              sources {
+                title
+                type
+                url
+                relevance
+              }
+              relatedQueries
+              altText
+              cached
+            }
+          }
+        `,
+        variables: {
+          input: {
+            query,
+            language: lang,
+            maxRelatedQueries: 3
+          }
+        }
+      };
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (state.token) {
+        headers['Authorization'] = `Bearer ${state.token}`;
+      }
+
+      try {
+        const bubble = appendChatBubble('Thinking...', 'ai');
+        
+        const res = await fetch(state.assistanceUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(graphqlQuery)
+        });
+
+        const resData = await res.json();
+        if (resData.data && resData.data.askStadium) {
+          const askData = resData.data.askStadium;
+          bubble.innerHTML = '';
+          
+          const textEl = document.createElement('div');
+          textEl.innerText = askData.answer;
+          bubble.appendChild(textEl);
+
+          // Sources display
+          if (askData.sources && askData.sources.length > 0) {
+            const sourcesDiv = document.createElement('div');
+            sourcesDiv.className = 'sources';
+            sourcesDiv.innerHTML = '<strong>Sources:</strong> ';
+            askData.sources.forEach(src => {
+              const link = document.createElement('a');
+              link.className = 'source-link';
+              link.target = '_blank';
+              link.href = src.url || '#';
+              link.innerText = `${src.title} (${(src.relevance*100).toFixed(0)}%)`;
+              sourcesDiv.appendChild(link);
+            });
+            bubble.appendChild(sourcesDiv);
+          }
+
+          // Generate a fake rating feedback option
+          lastQueryResponseId = 'q-' + Math.floor(Math.random()*100000);
+          appendFeedbackPrompt(bubble, lastQueryResponseId);
+
+        } else if (resData.errors) {
+          bubble.innerText = `Error: ${resData.errors[0].message}`;
+        } else {
+          bubble.innerText = 'Could not generate stadium AI response.';
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function appendChatBubble(text, sender) {
+      const box = document.getElementById('chat-box');
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${sender}`;
+      bubble.innerText = text;
+      box.appendChild(bubble);
+      box.scrollTop = box.scrollHeight;
+      return bubble;
+    }
+
+    function appendFeedbackPrompt(bubble, interactionId) {
+      const feedbackDiv = document.createElement('div');
+      feedbackDiv.className = 'feedback-panel';
+      feedbackDiv.innerText = 'Rate AI Answer: ';
+
+      const starsDiv = document.createElement('div');
+      starsDiv.className = 'stars-rating';
+      
+      for(let i=1; i<=5; i++) {
+        const star = document.createElement('span');
+        star.className = 'star';
+        star.innerHTML = '★';
+        star.onclick = () => submitFeedback(interactionId, i, starsDiv);
+        starsDiv.appendChild(star);
+      }
+      
+      feedbackDiv.appendChild(starsDiv);
+      bubble.appendChild(feedbackDiv);
+    }
+
+    async function submitFeedback(interactionId, rating, starsContainer) {
+      // Color stars
+      const stars = starsContainer.querySelectorAll('.star');
+      stars.forEach((star, idx) => {
+        if (idx < rating) star.classList.add('selected');
+        else star.classList.remove('selected');
+      });
+
+      const graphqlMutation = {
+        query: `
+          mutation SubmitFeedback($input: FeedbackInput!) {
+            submitFeedback(input: $input) {
+              feedbackId
+              acknowledged
+              message
+            }
+          }
+        `,
+        variables: {
+          input: {
+            interactionType: 'qna',
+            interactionId,
+            rating,
+            comment: 'Submitted via Live Demo dashboard'
+          }
+        }
+      };
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (state.token) {
+        headers['Authorization'] = `Bearer ${state.token}`;
+      }
+
+      try {
+        const res = await fetch(state.assistanceUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(graphqlMutation)
+        });
+        const data = await res.json();
+        if (data.data && data.data.submitFeedback) {
+          showNotification("AI interaction feedback recorded: " + data.data.submitFeedback.message);
+        }
+      } catch (err) {
+        console.error("Failed to submit AI feedback:", err);
+      }
+    }
+
+    function updateChatLanguage() {
+      showNotification("AI query target language updated.");
+    }
+
+    // Startup initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      // Load configurations if stored
+      const storedWF = localStorage.getItem('fifa_url_wayfinding');
+      const storedCM = localStorage.getItem('fifa_url_crowd');
+      const storedAS = localStorage.getItem('fifa_url_assistance');
+      
+      if (storedWF) state.wayfindingUrl = storedWF;
+      if (storedCM) state.crowdUrl = storedCM;
+      if (storedAS) state.assistanceUrl = storedAS;
+
+      document.getElementById('url-wayfinding').value = state.wayfindingUrl;
+      document.getElementById('url-crowd').value = state.crowdUrl;
+      document.getElementById('url-assistance').value = state.assistanceUrl;
+
+      // Auto detect endpoints if empty
+      if (!storedWF && !storedCM && !storedAS) {
+        autoDetectEndpoints();
+        saveConfiguration();
+      }
+
+      // Check for stored token
+      const storedToken = localStorage.getItem('fifa_jwt_token');
+      const storedRole = localStorage.getItem('fifa_jwt_role');
+      const storedUsername = localStorage.getItem('fifa_jwt_username');
+
+      if (storedToken) {
+        state.token = storedToken;
+        state.role = storedRole || 'staff';
+        state.username = storedUsername || 'Taylor Staff';
+
+        document.getElementById('jwt-token-display').value = storedToken;
+        document.getElementById('jwt-role').value = state.role;
+        document.getElementById('jwt-username').value = state.username;
+        document.getElementById('sidebar-role-display').innerText = state.role.toUpperCase();
+        document.getElementById('sidebar-role-display').style.color = 
+          state.role === 'admin' ? 'var(--accent)' : state.role === 'staff' ? 'var(--secondary)' : 'var(--primary)';
+      } else {
+        // Sign default staff JWT immediately
+        generateJWT();
+      }
+
+      // Initial check
+      testHealthCheck();
+      loadStadiumMap();
+
+      // Setup slider value labels
+      const slider = document.getElementById('route-density-threshold');
+      const val = document.getElementById('route-density-threshold-val');
+      slider.oninput = () => { val.innerText = slider.value; };
+    });
+  </script>
 </body>
 </html>

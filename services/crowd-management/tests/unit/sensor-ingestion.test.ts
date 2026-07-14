@@ -1,6 +1,6 @@
 import { SensorIngestionService } from '../../src/domain/services/sensor-ingestion.service';
 import { SensorRepository, ZoneRepository, CachePort } from '../../src/domain/ports/outbound.ports';
-import { SensorReading, SensorType } from '@shared/crowd';
+import { SensorReading } from '@shared/crowd';
 
 describe('SensorIngestionService Unit Tests', () => {
   let ingestionService: SensorIngestionService;
@@ -15,7 +15,9 @@ describe('SensorIngestionService Unit Tests', () => {
     };
 
     mockZoneRepo = {
-      getZoneCapacityAndOccupancy: jest.fn().mockResolvedValue({ capacity: 1000, currentOccupancy: 200 }),
+      getZoneCapacityAndOccupancy: jest
+        .fn()
+        .mockResolvedValue({ capacity: 1000, currentOccupancy: 200 }),
       getAllZones: jest.fn(),
       updateZoneOccupancy: jest.fn().mockResolvedValue(undefined),
     };

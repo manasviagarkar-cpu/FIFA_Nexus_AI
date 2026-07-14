@@ -13,7 +13,7 @@ export const validateBody = (schema: ZodSchema) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Input validation failed.',
-            details: err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '),
+            details: err.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', '),
             statusCode: 400,
             timestamp: new Date().toISOString(),
           },

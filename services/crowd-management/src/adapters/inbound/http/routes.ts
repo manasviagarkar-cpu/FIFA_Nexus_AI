@@ -21,7 +21,13 @@ export const createRouter = (): Router => {
   // Instantiate services
   const ingestionService = new SensorIngestionService(dbAdapter, dbAdapter, cacheAdapter);
   const alertService = new AlertService(dbAdapter, cacheAdapter);
-  const predictionService = new PredictionService(dbAdapter, dbAdapter, dbAdapter, dbAdapter, cacheAdapter);
+  const predictionService = new PredictionService(
+    dbAdapter,
+    dbAdapter,
+    dbAdapter,
+    dbAdapter,
+    cacheAdapter
+  );
 
   // Instantiate controllers
   const sensorController = new SensorController(ingestionService);

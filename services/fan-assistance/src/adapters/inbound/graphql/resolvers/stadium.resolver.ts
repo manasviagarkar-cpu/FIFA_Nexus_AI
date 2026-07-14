@@ -12,7 +12,16 @@ export const createStadiumResolver = (
     Query: {
       askStadium: async (
         _: any,
-        { input }: { input: { query: string; language: string; currentZoneId?: string; maxRelatedQueries?: number } },
+        {
+          input,
+        }: {
+          input: {
+            query: string;
+            language: string;
+            currentZoneId?: string;
+            maxRelatedQueries?: number;
+          };
+        },
         context: { user?: JWTPayload }
       ) => {
         if (!context.user) {
@@ -37,7 +46,7 @@ export const createStadiumResolver = (
         }
       },
       supportedLanguages: () => {
-        return SUPPORTED_LANGUAGES.map(l => ({
+        return SUPPORTED_LANGUAGES.map((l) => ({
           code: l.code,
           nameEnglish: l.nameEnglish,
           nameNative: l.nameNative,
@@ -49,7 +58,16 @@ export const createStadiumResolver = (
     Mutation: {
       submitFeedback: async (
         _: any,
-        { input }: { input: { interactionType: string; interactionId: string; rating: number; comment?: string } },
+        {
+          input,
+        }: {
+          input: {
+            interactionType: string;
+            interactionId: string;
+            rating: number;
+            comment?: string;
+          };
+        },
         context: { user?: JWTPayload }
       ) => {
         if (!context.user) {

@@ -13,10 +13,10 @@ export class AlertService implements AlertUseCase {
     return this.alertRepo.getActiveAlerts();
   }
 
-  async acknowledgeAlert(alertId: string, staffId: string, notes?: string): Promise<StaffAlert> {
+  async acknowledgeAlert(alertId: string, staffId: string, _notes?: string): Promise<StaffAlert> {
     logger.info(`Acknowledging alert ${alertId} by staff ${staffId}`);
     const alert = await this.alertRepo.getAlertById(alertId);
-    
+
     if (!alert) {
       throw new Error(`Alert with ID ${alertId} not found.`);
     }
@@ -40,7 +40,9 @@ export class AlertService implements AlertUseCase {
     return updatedAlert;
   }
 
-  async triggerAlert(alertData: Omit<StaffAlert, 'alertId' | 'status' | 'createdAt' | 'altText'>): Promise<StaffAlert> {
+  async triggerAlert(
+    alertData: Omit<StaffAlert, 'alertId' | 'status' | 'createdAt' | 'altText'>
+  ): Promise<StaffAlert> {
     const newAlert: StaffAlert = {
       ...alertData,
       alertId: crypto.randomUUID(),

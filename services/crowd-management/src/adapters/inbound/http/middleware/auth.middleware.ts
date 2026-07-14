@@ -46,7 +46,12 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
 export const requirePermission = (permission: string) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'User not authenticated', statusCode: 401 } });
+      return res
+        .status(401)
+        .json({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'User not authenticated', statusCode: 401 },
+        });
     }
 
     const role = req.user.role as UserRole;

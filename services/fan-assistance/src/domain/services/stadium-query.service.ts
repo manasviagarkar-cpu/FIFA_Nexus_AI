@@ -23,7 +23,9 @@ export class StadiumQueryService implements StadiumQueryUseCase {
     }
 
     const cleanedQuery = query.trim();
-    logger.info(`Stadium query received: "${cleanedQuery.slice(0, 30)}..." in language ${language}. Zone: ${currentZoneId}`);
+    logger.info(
+      `Stadium query received: "${cleanedQuery.slice(0, 30)}..." in language ${language}. Zone: ${currentZoneId}`
+    );
 
     // Check Redis cache for exact query matches (5 mins TTL)
     const cacheKey = `query:${cleanedQuery.toLowerCase()}:${language}:${currentZoneId || 'none'}`;
@@ -43,11 +45,15 @@ export class StadiumQueryService implements StadiumQueryUseCase {
 
     // Fetch response from Gemini SDK
     try {
-      const geminiResult = await this.gemini.answerStadiumQuery(cleanedQuery, language, contextString);
+      const geminiResult = await this.gemini.answerStadiumQuery(
+        cleanedQuery,
+        language,
+        contextString
+      );
 
       const response: StadiumQueryResponse = {
         answer: geminiResult.answer,
-        sources: geminiResult.sources.slice(0, 3).map(s => ({
+        sources: geminiResult.sources.slice(0, 3).map((s) => ({
           title: s.title,
           type: s.type as any,
           url: s.url,
@@ -55,7 +61,9 @@ export class StadiumQueryService implements StadiumQueryUseCase {
         })),
         relatedQueries: geminiResult.relatedQueries.slice(0, maxRelated),
         altText: `AI Answer in ${language}: "${geminiResult.answer.slice(0, 100)}..."`,
-        accessibilityNotes: geminiResult.accessibilityNotes || 'Information presented in clear text structure suitable for screen readers.',
+        accessibilityNotes:
+          geminiResult.accessibilityNotes ||
+          'Information presented in clear text structure suitable for screen readers.',
         language,
         cached: false,
         respondedAt: new Date().toISOString(),

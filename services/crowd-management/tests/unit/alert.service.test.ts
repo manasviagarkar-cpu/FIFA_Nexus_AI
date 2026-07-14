@@ -49,10 +49,15 @@ describe('AlertService Unit Tests', () => {
   it('should acknowledge active alert and publish transition update', async () => {
     const staffId = 'staff-abc-123';
     const result = await alertService.acknowledgeAlert('alert-111', staffId, 'Deploying now');
-    
+
     expect(result.status).toBe('acknowledged');
     expect(result.acknowledgedBy).toBe(staffId);
-    expect(mockAlertRepo.updateAlertStatus).toHaveBeenCalledWith('alert-111', 'acknowledged', staffId, expect.any(Date));
+    expect(mockAlertRepo.updateAlertStatus).toHaveBeenCalledWith(
+      'alert-111',
+      'acknowledged',
+      staffId,
+      expect.any(Date)
+    );
     expect(mockCache.publish).toHaveBeenCalledWith('alerts:updates', expect.any(String));
   });
 
@@ -62,6 +67,8 @@ describe('AlertService Unit Tests', () => {
       status: 'acknowledged' as any,
     });
 
-    await expect(alertService.acknowledgeAlert('alert-111', 'staff-123')).rejects.toThrow('Alert is already in status');
+    await expect(alertService.acknowledgeAlert('alert-111', 'staff-123')).rejects.toThrow(
+      'Alert is already in status'
+    );
   });
 });

@@ -1,6 +1,12 @@
 import { PredictionService } from '../../src/domain/services/prediction.service';
-import { PredictionRepository, ZoneRepository, SensorRepository, AlertRepository, CachePort } from '../../src/domain/ports/outbound.ports';
-import { SensorReading, CongestionPrediction, StaffAlert } from '@shared/crowd';
+import {
+  PredictionRepository,
+  ZoneRepository,
+  SensorRepository,
+  AlertRepository,
+  CachePort,
+} from '../../src/domain/ports/outbound.ports';
+
 
 describe('PredictionService Unit Tests', () => {
   let predictionService: PredictionService;
@@ -63,7 +69,7 @@ describe('PredictionService Unit Tests', () => {
 
   it('should run prediction cycle successfully and generate prediction objects', async () => {
     const results = await predictionService.runPredictionCycle();
-    
+
     expect(results).toHaveLength(1);
     expect(results[0].zoneId).toBe('gate-a');
     expect(results[0].currentLevel).toBe('high'); // 800 occupancy / 1000 capacity
