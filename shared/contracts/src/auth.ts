@@ -1,8 +1,5 @@
-// ============================================================================
-// FIFA Nexus AI — Shared Contracts: Authentication & Authorization
-// ============================================================================
-
-export { UserRole, AccessibilityNeed, SupportedLanguage } from './common';
+import { UserRole, AccessibilityNeed, SupportedLanguage } from './common';
+export { UserRole, AccessibilityNeed, SupportedLanguage };
 
 /** JWT token payload structure */
 export interface JWTPayload {
