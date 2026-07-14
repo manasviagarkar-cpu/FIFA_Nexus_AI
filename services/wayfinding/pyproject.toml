@@ -1,0 +1,21 @@
+[project]
+name = "fifa-nexus-wayfinding"
+version = "1.0.0"
+description = "Dynamic Wayfinding Service for FIFA Nexus AI"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --cov=app --cov-report=term-missing --cov-report=html:coverage_html"
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["tests/*", "app/main.py"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
