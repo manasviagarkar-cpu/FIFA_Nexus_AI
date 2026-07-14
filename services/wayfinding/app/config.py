@@ -20,16 +20,16 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "info"
 
     # PostgreSQL
-    POSTGRES_HOST: str = "localhost"
-    POSTGRES_PORT: int = 5432
-    POSTGRES_DB: str = "fifa_nexus"
-    POSTGRES_USER: str = "nexus_admin"
-    POSTGRES_PASSWORD: str = "nexus_secure_2026"
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
 
     # Redis
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    REDIS_PASSWORD: str = "nexus_redis_2026"
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_PASSWORD: str
     REDIS_DB: int = 0
     REDIS_CACHE_TTL: int = 300  # 5 minutes default
 

@@ -4,6 +4,20 @@ FIFA Nexus AI — Wayfinding Service Entrypoint
 
 from __future__ import annotations
 
+import os
+import sys
+
+# Adjust sys.path to make app and shared modules importable in Vercel serverless environment
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# current_dir is <root>/services/wayfinding/app
+service_root = os.path.dirname(current_dir) # <root>/services/wayfinding
+repo_root = os.path.dirname(os.path.dirname(service_root)) # <root>
+
+if service_root not in sys.path:
+    sys.path.insert(0, service_root)
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+
 import logging
 import time
 from contextlib import asynccontextmanager
@@ -31,36 +45,44 @@ logging.basicConfig(
 logger = logging.getLogger("wayfinding")
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Lifecycle manager for db pool and Redis connections."""
-    logger.info("Starting up Wayfinding Service...")
+async def init_app_state(app: FastAPI):
+    """Lazy initialization of database and cache dependencies."""
+    if hasattr(app.state, "wayfinding_service") and app.state.wayfinding_service:
+        return
+
+    logger.info("Lazily initializing database and Redis connections...")
 
     # Initialize PostgreSQL Pool
-    try:
-        db_pool = await asyncpg.create_pool(
-            dsn=settings.database_url,
-            min_size=5,
-            max_size=20,
-            timeout=10.0,
-        )
-        app.state.db_pool = db_pool
-        logger.info("Connected to PostgreSQL pool successfully.")
-    except Exception as e:
-        logger.critical("Failed to connect to PostgreSQL: %s", e)
-        raise e
+    if not hasattr(app.state, "db_pool") or not app.state.db_pool:
+        try:
+            db_pool = await asyncpg.create_pool(
+                dsn=settings.database_url,
+                min_size=1,
+                max_size=5,
+                timeout=10.0,
+            )
+            app.state.db_pool = db_pool
+            logger.info("Connected to PostgreSQL pool successfully (lazy).")
+        except Exception as e:
+            logger.critical("Failed to connect to PostgreSQL (lazy): %s", e)
+            raise e
+    else:
+        db_pool = app.state.db_pool
 
     # Initialize Redis Client
-    try:
-        redis_client = redis.from_url(
-            settings.redis_url,
-            decode_responses=True,
-        )
-        app.state.redis_client = redis_client
-        logger.info("Connected to Redis successfully.")
-    except Exception as e:
-        logger.critical("Failed to connect to Redis: %s", e)
-        raise e
+    if not hasattr(app.state, "redis_client") or not app.state.redis_client:
+        try:
+            redis_client = redis.from_url(
+                settings.redis_url,
+                decode_responses=True,
+            )
+            app.state.redis_client = redis_client
+            logger.info("Connected to Redis successfully (lazy).")
+        except Exception as e:
+            logger.critical("Failed to connect to Redis (lazy): %s", e)
+            raise e
+    else:
+        redis_client = app.state.redis_client
 
     # Instantiate Adapters and Services
     stadium_repo = PostgresStadiumRepository(db_pool)
@@ -68,14 +90,24 @@ async def lifespan(app: FastAPI):
     app.state.wayfinding_service = WayfindingService(stadium_repo, cache)
     app.state.rate_limiter = RedisRateLimiter(redis_client)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifecycle manager for db pool and Redis connections."""
+    logger.info("Starting up Wayfinding Service...")
+    try:
+        await init_app_state(app)
+    except Exception as e:
+        logger.warning("Could not pre-initialize connections at startup: %s", e)
+
     yield
 
     # Shutdown
     logger.info("Shutting down Wayfinding Service...")
-    if hasattr(app.state, "db_pool"):
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
         await app.state.db_pool.close()
         logger.info("PostgreSQL pool closed.")
-    if hasattr(app.state, "redis_client"):
+    if hasattr(app.state, "redis_client") and app.state.redis_client:
         await app.state.redis_client.close()
         logger.info("Redis connection closed.")
 
@@ -107,6 +139,15 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 
+@app.middleware("http")
+async def ensure_app_state_initialized(request: Request, call_next):
+    """Ensures database and Redis connections are initialized before route processing."""
+    if request.url.path.startswith("/api/v1") or request.url.path.startswith("/graphql"):
+        await init_app_state(request.app)
+    response = await call_next(request)
+    return response
+
+
 # Register route handlers
 app.include_router(router)
 
@@ -131,6 +172,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 @app.get("/api/v1/health", tags=["System"])
+@app.get("/api/v1/health-wayfinding", tags=["System"])
 async def health_check(request: Request):
     """Retrieve service and infrastructure integration health status."""
     uptime = time.perf_counter()

@@ -20,6 +20,9 @@
       "dest": "public/index.html"
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/api/v1/routes/(.*)",
       "dest": "services/wayfinding/app/main.py"
     },
