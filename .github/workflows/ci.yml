@@ -1,5 +1,9 @@
 name: CI
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ main, master ]
@@ -160,3 +164,16 @@ jobs:
           cd services/tournament-ops
           npm test
 
+  ci-complete:
+    name: CI Complete
+    runs-on: ubuntu-latest
+    needs: [ wayfinding, shared-contracts, crowd-management, fan-assistance, tournament-ops ]
+    if: always()
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "One or more CI jobs failed or were cancelled."
+            exit 1
+          fi
+          echo "All CI jobs passed successfully ✅"

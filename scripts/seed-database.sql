@@ -224,7 +224,7 @@ INSERT INTO users (email, password_hash, name, role, preferred_language, accessi
 ON CONFLICT (email) DO NOTHING;
 
 -- ============================================================================
-// FIFA Nexus AI — Matches Table for Tournament Operations
+-- FIFA Nexus AI — Matches Table for Tournament Operations
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS matches (
     match_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

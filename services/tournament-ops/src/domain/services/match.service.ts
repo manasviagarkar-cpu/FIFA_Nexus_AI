@@ -1,3 +1,11 @@
+/**
+ * MatchService — core domain service orchestrating match lifecycle.
+ *
+ * Responsibilities:
+ *  - CRUD operations for football matches with cache invalidation
+ *  - Venue-specific upcoming-match lookups for crowd surge detection
+ *  - All business rules around valid state transitions
+ */
 import {
   Match,
   CreateMatchRequest,
@@ -8,6 +16,15 @@ import {
 import { MatchUseCase } from '../ports/inbound.ports';
 import { MatchRepository, CachePort } from '../ports/outbound.ports';
 import { logger } from '../../infrastructure/logger';
+
+/** Domain error thrown when a requested match does not exist in the repository. */
+export class MatchNotFoundError extends Error {
+  public readonly statusCode = 404;
+  constructor(matchId: string) {
+    super(`Match with ID ${matchId} not found.`);
+    this.name = 'MatchNotFoundError';
+  }
+}
 
 export class MatchService implements MatchUseCase {
   constructor(
@@ -53,10 +70,14 @@ export class MatchService implements MatchUseCase {
     return matches;
   }
 
+  /**
+   * Updates a match's status, scores, or live minute.
+   * @throws {MatchNotFoundError} when the match ID does not exist.
+   */
   async updateMatch(matchId: string, req: UpdateMatchRequest): Promise<Match> {
     const existing = await this.matchRepo.findById(matchId);
     if (!existing) {
-      throw new Error(`Match with ID ${matchId} not found.`);
+      throw new MatchNotFoundError(matchId);
     }
 
     const updates: Partial<Match> = {

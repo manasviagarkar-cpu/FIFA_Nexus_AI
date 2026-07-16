@@ -1,0 +1,23 @@
+# Python virtual environments - Vercel must NOT scan these
+venv/
+.venv/
+**/__pycache__/
+**/*.pyc
+
+# Service node_modules (each service builds independently)
+services/*/node_modules/
+shared/*/node_modules/
+
+# Build artifacts - not needed for static serving
+services/*/dist/
+shared/contracts/dist/
+
+# Docker context files not needed by Vercel
+docker-compose.yml
+Dockerfile
+services/*/Dockerfile
+
+# Dev environment
+.env
+.env.*
+!.env.example

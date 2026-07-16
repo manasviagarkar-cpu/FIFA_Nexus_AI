@@ -16,6 +16,13 @@ app.use(helmet());
 app.use(cors({ origin: config.cors.origins, credentials: true }));
 app.use(express.json());
 
+// Request ID middleware (for distributed tracing)
+app.use((req, res, next) => {
+  res.locals['requestId'] = crypto.randomUUID();
+  res.setHeader('X-Request-Id', res.locals['requestId']);
+  next();
+});
+
 // Latency tracking middleware
 app.use((req, res, next) => {
   const start = process.hrtime();
@@ -71,15 +78,28 @@ app.get('/api/v1/health', async (req, res) => {
 // Wire routes
 app.use('/api/v1', createRouter());
 
-// Express Global Error Handler
-app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  logger.error('Unhandled request exception:', err);
-  return res.status(err.statusCode || 500).json({
+// Express Global Error Handler — routes domain errors to appropriate HTTP codes
+app.use((err: unknown, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const isDomainError = typeof err === 'object' && err !== null && 'statusCode' in err;
+  const statusCode = isDomainError ? (err as { statusCode: number }).statusCode : 500;
+  const message =
+    isDomainError && err instanceof Error
+      ? err.message
+      : 'An unexpected application exception occurred.';
+
+  if (statusCode >= 500) {
+    logger.error('Unhandled request exception:', err);
+  } else {
+    logger.warn(`Domain error [${statusCode}]:`, message);
+  }
+
+  return res.status(statusCode).json({
     success: false,
     error: {
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'An unexpected application exception occurred.',
-      statusCode: err.statusCode || 500,
+      code: statusCode === 404 ? 'NOT_FOUND' : 'INTERNAL_SERVER_ERROR',
+      message,
+      statusCode,
+      requestId: res.locals['requestId'],
       timestamp: new Date().toISOString(),
     },
   });
