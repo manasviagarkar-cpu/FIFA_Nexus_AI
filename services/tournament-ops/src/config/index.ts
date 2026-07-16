@@ -5,9 +5,9 @@ dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 export const config = {
   service: {
-    name: process.env.SERVICE_NAME || 'crowd-management',
+    name: process.env.SERVICE_NAME || 'tournament-ops',
     version: '1.0.0',
-    port: parseInt(process.env.SERVICE_PORT || '8002', 10),
+    port: parseInt(process.env.SERVICE_PORT || '8004', 10),
     logLevel: process.env.LOG_LEVEL || 'info',
   },
   db: {
@@ -29,12 +29,5 @@ export const config = {
   },
   cors: {
     origins: (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:8080').split(','),
-  },
-  prediction: {
-    intervalMs: 30000, // Predict every 30 seconds
-    alpha: 0.3, // EWMA smoothing factor
-  },
-  tournamentOps: {
-    url: process.env.TOURNAMENT_OPS_URL || 'http://localhost:8004',
   },
 };

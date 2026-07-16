@@ -43,7 +43,14 @@ export interface ZoneRepository {
 }
 
 export interface CachePort {
-  get<T>(key: str): Promise<T | null>;
-  set<T>(key: str, value: T, ttlSeconds: number): Promise<void>;
+  get<T>(key: string): Promise<T | null>;
+  set<T>(key: string, value: T, ttlSeconds: number): Promise<void>;
   publish(channel: string, message: string): Promise<void>;
+}
+
+/** Cross-service port for tournament-ops match schedule queries */
+export interface MatchSchedulePort {
+  getUpcomingMatchForVenue(
+    venueId: string
+  ): Promise<{ kickoffTime: string; minutesUntilKickoff: number } | null>;
 }

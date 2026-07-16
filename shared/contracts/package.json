@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "generate:python": "npx ts-node ../../scripts/generate-python-contracts.ts"
   },
   "dependencies": {},
   "devDependencies": {

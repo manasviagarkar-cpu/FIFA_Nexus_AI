@@ -222,3 +222,31 @@ INSERT INTO users (email, password_hash, name, role, preferred_language, accessi
     ('staff@example.com', '$2b$12$LJ3m4ys3Lk0TSwHlv0IG8OQX5Lgc9B7gP5Qq8cFqZ5c9H5v5qXKHq', 'Morgan Staff', 'staff', 'en', '{}', FALSE, NULL),
     ('admin@example.com', '$2b$12$LJ3m4ys3Lk0TSwHlv0IG8OQX5Lgc9B7gP5Qq8cFqZ5c9H5v5qXKHq', 'Taylor Admin', 'admin', 'en', '{}', TRUE, NULL)
 ON CONFLICT (email) DO NOTHING;
+
+-- ============================================================================
+// FIFA Nexus AI — Matches Table for Tournament Operations
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS matches (
+    match_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    group_id VARCHAR(10),
+    stage VARCHAR(30) NOT NULL,
+    home_team VARCHAR(3) NOT NULL,
+    away_team VARCHAR(3) NOT NULL,
+    venue_id VARCHAR(50) REFERENCES stadium_zones(id),
+    venue_name VARCHAR(255) NOT NULL,
+    kickoff_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'scheduled',
+    home_score INTEGER,
+    away_score INTEGER,
+    minute INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Seed some matches (USA vs MEX and CAN vs USA at MetLife Stadium)
+INSERT INTO matches (match_id, group_id, stage, home_team, away_team, venue_id, venue_name, kickoff_time, status, home_score, away_score, minute) VALUES
+    ('a0c4fbf5-1f9e-473d-9f4a-7cfcb4b901a1', 'A', 'group', 'USA', 'MEX', 'seating-101', 'MetLife Stadium - Seating 101', NOW() + INTERVAL '30 minutes', 'scheduled', null, null, null),
+    ('a0c4fbf5-1f9e-473d-9f4a-7cfcb4b901a2', 'A', 'group', 'CAN', 'USA', 'seating-201', 'MetLife Stadium - Seating 201', NOW() + INTERVAL '24 hours', 'scheduled', null, null, null),
+    ('a0c4fbf5-1f9e-473d-9f4a-7cfcb4b901a3', 'A', 'group', 'MEX', 'CAN', 'seating-vip', 'MetLife Stadium - VIP Seating', NOW() - INTERVAL '3 hours', 'completed', 2, 1, 90)
+ON CONFLICT (match_id) DO NOTHING;
+

@@ -4,14 +4,9 @@ import cors from 'cors';
 import http from 'http';
 import { config } from './config';
 import { createRouter } from './adapters/inbound/http/routes';
-import { setupWebSocketServer } from './adapters/inbound/websocket/sensor-stream';
 import { connectDb, pool } from './infrastructure/database';
 import { connectRedis, redisClient } from './infrastructure/redis';
 import { logger } from './infrastructure/logger';
-import { PostgresAdapter } from './adapters/outbound/database/postgres.adapter';
-import { RedisAdapter } from './adapters/outbound/cache/redis.adapter';
-import { TournamentOpsAdapter } from './adapters/outbound/tournament/tournament-ops.adapter';
-import { PredictionService } from './domain/services/prediction.service';
 
 const app = express();
 const server = http.createServer(app);
@@ -90,50 +85,14 @@ app.use((err: any, req: express.Request, res: express.Response, _next: express.N
   });
 });
 
-// Background prediction runner
-let predictionTimer: NodeJS.Timeout;
-const startPredictionPipeline = (predictionService: PredictionService) => {
-  logger.info(`Starting periodic prediction loop every ${config.prediction.intervalMs / 1000}s`);
-
-  const runCycle = async () => {
-    try {
-      await predictionService.runPredictionCycle();
-    } catch (err) {
-      logger.error('Prediction cycle run failed:', err);
-    }
-  };
-
-  // Run immediately then schedule
-  runCycle();
-  predictionTimer = setInterval(runCycle, config.prediction.intervalMs);
-};
-
 // Bootstrap servers
 const bootstrap = async () => {
   try {
     await connectDb();
     await connectRedis();
 
-    // Start WebSocket server
-    setupWebSocketServer(server);
-
-    // Setup services for background runner
-    const dbAdapter = new PostgresAdapter();
-    const cacheAdapter = new RedisAdapter();
-    const tournamentOpsAdapter = new TournamentOpsAdapter();
-    const predictionService = new PredictionService(
-      dbAdapter,
-      dbAdapter,
-      dbAdapter,
-      dbAdapter,
-      cacheAdapter,
-      tournamentOpsAdapter
-    );
-
-    startPredictionPipeline(predictionService);
-
     server.listen(config.service.port, () => {
-      logger.info(`Crowd Management Service active on port ${config.service.port}`);
+      logger.info(`Tournament Operations Service active on port ${config.service.port}`);
     });
   } catch (err) {
     logger.error('Service bootstrap failed:', err);
@@ -146,7 +105,6 @@ bootstrap();
 // Graceful shutdown handling
 const gracefulShutdown = async (signal: string) => {
   logger.info(`Received ${signal}. Shutting down worker...`);
-  clearInterval(predictionTimer);
 
   server.close(async () => {
     logger.info('HTTP server closed.');
@@ -166,3 +124,4 @@ const gracefulShutdown = async (signal: string) => {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+export { app, server };

@@ -7,6 +7,7 @@ import {
   SensorRepository,
   CachePort,
   AlertRepository,
+  MatchSchedulePort,
 } from '../ports/outbound.ports';
 import { EWMAConfig, HistoricalPoint } from '../../utils/prediction-model';
 import { logger } from '../../infrastructure/logger';
@@ -17,7 +18,8 @@ export class PredictionService implements CrowdPredictionUseCase {
     private zoneRepo: ZoneRepository,
     private sensorRepo: SensorRepository,
     private alertRepo: AlertRepository,
-    private cache: CachePort
+    private cache: CachePort,
+    private matchSchedule?: MatchSchedulePort
   ) {}
 
   async getLatestPredictions(): Promise<CongestionPrediction[]> {
@@ -64,8 +66,26 @@ export class PredictionService implements CrowdPredictionUseCase {
       const prediction15 = EWMAConfig.predictFuture(currentOccupancy, history, 0.3, 15);
       const prediction30 = EWMAConfig.predictFuture(currentOccupancy, history, 0.3, 30);
 
-      const pred15Occupancy = prediction15.predictedOccupancy;
-      const pred30Occupancy = prediction30.predictedOccupancy;
+      let pred15Occupancy = prediction15.predictedOccupancy;
+      let pred30Occupancy = prediction30.predictedOccupancy;
+
+      // Tournament-ops integration: boost predictions near match kickoff
+      if (this.matchSchedule) {
+        try {
+          const upcoming = await this.matchSchedule.getUpcomingMatchForVenue(zone.id);
+          if (upcoming && upcoming.minutesUntilKickoff <= 60 && upcoming.minutesUntilKickoff > 0) {
+            // Apply kickoff surge factor: up to 40% boost scaling inversely with time to kickoff
+            const surgeFactor = 1 + 0.4 * (1 - upcoming.minutesUntilKickoff / 60);
+            pred15Occupancy = Math.round(pred15Occupancy * surgeFactor);
+            pred30Occupancy = Math.round(pred30Occupancy * surgeFactor);
+            logger.info(
+              `Kickoff surge applied for zone ${zone.id}: match in ${upcoming.minutesUntilKickoff}min, factor ${surgeFactor.toFixed(2)}`
+            );
+          }
+        } catch (err) {
+          logger.warn(`Failed to query match schedule for zone ${zone.id}:`, err);
+        }
+      }
 
       const currentLevel = EWMAConfig.getCongestionLevel(currentOccupancy, capacity);
       const level15 = EWMAConfig.getCongestionLevel(pred15Occupancy, capacity);
@@ -151,3 +171,4 @@ export class PredictionService implements CrowdPredictionUseCase {
     );
   }
 }
+

@@ -795,6 +795,10 @@
           <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
           Fan AI Assistant
         </button>
+        <button class="nav-btn" onclick="switchTab('tournament')">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+          Tournament Ops
+        </button>
         <button class="nav-btn" onclick="switchTab('settings')">
           <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
           System Config
@@ -826,6 +830,10 @@
           <div class="status-pill">
             <span class="status-dot unknown" id="status-assistance"></span>
             Fan Assist
+          </div>
+          <div class="status-pill">
+            <span class="status-dot unknown" id="status-tournament"></span>
+            Tournament Ops
           </div>
         </div>
       </header>
@@ -1114,6 +1122,109 @@
       </div>
 
       <!-- ===================================================================== -->
+      <!-- TAB TOURNAMENT: TOURNAMENT OPERATIONS -->
+      <!-- ===================================================================== -->
+      <div id="tab-tournament" class="tab-content">
+        <div class="grid-2">
+          <!-- Fixtures and CRUD Column -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-title">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                Create Match Fixture
+              </div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                Schedule a new match. Requires <strong>Admin</strong> role (represented by permission system:configure).
+              </p>
+              <div class="form-group">
+                <label for="match-stage">Tournament Stage</label>
+                <select id="match-stage">
+                  <option value="group" selected>Group Stage</option>
+                  <option value="round_of_32">Round of 32</option>
+                  <option value="round_of_16">Round of 16</option>
+                  <option value="quarter_final">Quarter-Final</option>
+                  <option value="semi_final">Semi-Final</option>
+                  <option value="final">Final</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="match-group-id">Group ID (Optional)</label>
+                <input type="text" id="match-group-id" value="A" placeholder="e.g. A, B, C">
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label for="match-home-team">Home Team (ISO Code)</label>
+                  <input type="text" id="match-home-team" value="USA" placeholder="e.g. USA" maxlength="3">
+                </div>
+                <div class="form-group">
+                  <label for="match-away-team">Away Team (ISO Code)</label>
+                  <input type="text" id="match-away-team" value="MEX" placeholder="e.g. MEX" maxlength="3">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="match-venue-id">Venue Zone ID</label>
+                <select id="match-venue-id">
+                  <option value="seating-101">Section 101 - Lower Bowl</option>
+                  <option value="seating-201">Section 201 - Upper Bowl</option>
+                  <option value="seating-vip">VIP Suite Level</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="match-kickoff-time">Kickoff Time (ISO 8601)</label>
+                <input type="text" id="match-kickoff-time" placeholder="2026-07-17T20:00:00Z">
+              </div>
+              <button class="btn btn-success" onclick="createMatchFixture()">Schedule Match</button>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Live Fixture List</div>
+              <div class="alerts-list" id="tournament-fixtures" style="max-height: 400px;">
+                <div style="text-align: center; color: var(--text-muted); padding: 2rem 0;">No fixtures loaded. Configure URLs and click "Refresh Fixtures".</div>
+              </div>
+              <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="loadFixturesAndStandings()">
+                🔄 Refresh Fixtures & Standings
+              </button>
+            </div>
+          </div>
+
+          <!-- Standings Column -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-title">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" /></svg>
+                Group Standings (Computed)
+              </div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                Live-calculated standings based on completed/live match scores using FIFA group tiebreakers.
+              </p>
+              
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;" id="standings-table">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                      <th style="padding: 0.75rem 0.5rem;">Pos</th>
+                      <th style="padding: 0.75rem 0.5rem;">Team</th>
+                      <th style="padding: 0.75rem 0.5rem; text-align: center;">P</th>
+                      <th style="padding: 0.75rem 0.5rem; text-align: center;">W</th>
+                      <th style="padding: 0.75rem 0.5rem; text-align: center;">D</th>
+                      <th style="padding: 0.75rem 0.5rem; text-align: center;">L</th>
+                      <th style="padding: 0.75rem 0.5rem; text-align: center;">GD</th>
+                      <th style="padding: 0.75rem 0.5rem; text-align: center;">PTS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="standings-table-body">
+                    <tr>
+                      <td colspan="8" style="padding: 2rem 0.5rem; text-align: center; color: var(--text-muted);">Refresh fixtures to compute standings.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
       <!-- TAB 4: SYSTEM CONFIG -->
       <!-- ===================================================================== -->
       <div id="tab-settings" class="tab-content">
@@ -1138,6 +1249,10 @@
             <div class="form-group">
               <label for="url-assistance">Fan Assistance URL (GraphQL)</label>
               <input type="text" id="url-assistance" placeholder="http://localhost:8003/graphql">
+            </div>
+            <div class="form-group">
+              <label for="url-tournament">Tournament Operations URL (Express)</label>
+              <input type="text" id="url-tournament" placeholder="http://localhost:8004">
             </div>
           </div>
 
@@ -1199,6 +1314,7 @@
       wayfindingUrl: 'http://localhost:8001',
       crowdUrl: 'http://localhost:8002',
       assistanceUrl: 'http://localhost:8003/graphql',
+      tournamentUrl: 'http://localhost:8004',
       ws: null,
       stadiumNodes: [],
     };
@@ -1221,7 +1337,12 @@
       if (tabId === 'wayfinding') titleEl.innerText = 'Wayfinding Route Calculator';
       else if (tabId === 'crowd') titleEl.innerText = 'Smart Crowd Management';
       else if (tabId === 'assistance') titleEl.innerText = 'Multilingual Fan Assistance';
+      else if (tabId === 'tournament') titleEl.innerText = 'Tournament Operations';
       else if (tabId === 'settings') titleEl.innerText = 'System Configuration';
+
+      if (tabId === 'tournament') {
+        loadFixturesAndStandings();
+      }
     }
 
     // Role-specific defaults
@@ -1329,12 +1450,16 @@
         document.getElementById('url-wayfinding').value = 'http://localhost:8001';
         document.getElementById('url-crowd').value = 'http://localhost:8002';
         document.getElementById('url-assistance').value = 'http://localhost:8003/graphql';
-      } else if (hostname.includes('onrender.com')) {
-        const prefix = hostname.split('.onrender.com')[0];
+        document.getElementById('url-tournament').value = 'http://localhost:8004';
+      } else {
+        const prefix = hostname.includes('onrender.com') 
+          ? hostname.split('.onrender.com')[0] 
+          : hostname.split('.')[0] || 'fifa-nexus';
         const basePrefix = prefix.replace(/-frontend$/, '').replace(/-web$/, '');
         document.getElementById('url-wayfinding').value = `https://${basePrefix}-wayfinding.onrender.com`;
         document.getElementById('url-crowd').value = `https://${basePrefix}-crowd-management.onrender.com`;
         document.getElementById('url-assistance').value = `https://${basePrefix}-fan-assistance.onrender.com/graphql`;
+        document.getElementById('url-tournament').value = `https://${basePrefix}-tournament-ops.onrender.com`;
       }
     }
 
@@ -1342,10 +1467,12 @@
       state.wayfindingUrl = document.getElementById('url-wayfinding').value || 'http://localhost:8001';
       state.crowdUrl = document.getElementById('url-crowd').value || 'http://localhost:8002';
       state.assistanceUrl = document.getElementById('url-assistance').value || 'http://localhost:8003/graphql';
+      state.tournamentUrl = document.getElementById('url-tournament').value || 'http://localhost:8004';
 
       localStorage.setItem('fifa_url_wayfinding', state.wayfindingUrl);
       localStorage.setItem('fifa_url_crowd', state.crowdUrl);
       localStorage.setItem('fifa_url_assistance', state.assistanceUrl);
+      localStorage.setItem('fifa_url_tournament', state.tournamentUrl);
 
       showNotification("Service URLs configured.");
       testHealthCheck();
@@ -1385,6 +1512,16 @@
         else dotAS.className = 'status-dot offline';
       } catch {
         dotAS.className = 'status-dot offline';
+      }
+
+      // Tournament operations health check
+      const dotTO = document.getElementById('status-tournament');
+      try {
+        const res = await fetch(`${state.tournamentUrl}/api/v1/health`, { headers });
+        if (res.ok) dotTO.className = 'status-dot online';
+        else dotTO.className = 'status-dot offline';
+      } catch {
+        dotTO.className = 'status-dot offline';
       }
     }
 
@@ -2045,6 +2182,246 @@
       }
     }
 
+    async function loadFixturesAndStandings() {
+      const headers = state.token ? { 'Authorization': `Bearer ${state.token}` } : {};
+
+      // Load Fixtures
+      const fixturesDiv = document.getElementById('tournament-fixtures');
+      try {
+        const res = await fetch(`${state.tournamentUrl}/api/v1/matches`, { headers });
+        const body = await res.json();
+        if (body.success && body.data) {
+          fixturesDiv.innerHTML = '';
+          if (body.data.length === 0) {
+            fixturesDiv.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem 0;">No fixtures scheduled.</div>';
+          } else {
+            body.data.forEach(match => {
+              const item = document.createElement('div');
+              item.className = 'alert-item';
+              if (match.status === 'live') item.classList.add('warning');
+              else if (match.status === 'completed') item.classList.add('info');
+
+              const isLive = match.status === 'live';
+
+              item.innerHTML = `
+                <div class="alert-details">
+                  <div class="alert-msg">
+                    ${match.homeTeam} vs ${match.awayTeam} 
+                    <span style="color: var(--primary); font-weight: bold;">
+                      [${match.homeScore !== null ? match.homeScore : '-'} : ${match.awayScore !== null ? match.awayScore : '-'}]
+                    </span>
+                  </div>
+                  <div class="alert-meta">
+                    Stage: ${match.stage.toUpperCase()} (Group ${match.groupId || 'N/A'})<br>
+                    Venue: ${match.venueName} | Status: <strong>${match.status.toUpperCase()}</strong> ${isLive ? `(Min: ${match.minute || 0}')` : ''}<br>
+                    Kickoff: ${new Date(match.kickoffTime).toLocaleString()}
+                  </div>
+                  
+                  <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="promptScoreUpdate('${match.matchId}')">Set Score</button>
+                    <button class="btn btn-secondary" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="setMatchStatus('${match.matchId}', 'live')">Set Live</button>
+                    <button class="btn btn-secondary" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="setMatchStatus('${match.matchId}', 'completed')">Complete</button>
+                    <button class="btn btn-secondary" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-color: var(--danger); color: var(--danger);" onclick="deleteMatchFixture('${match.matchId}')">Delete</button>
+                  </div>
+                </div>
+              `;
+              fixturesDiv.appendChild(item);
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load fixtures:", err);
+        fixturesDiv.innerHTML = '<div style="text-align: center; color: var(--danger); padding: 2rem 0;">Error connecting to Tournament Ops service.</div>';
+      }
+
+      // Load Standings
+      const standingsBody = document.getElementById('standings-table-body');
+      try {
+        const res = await fetch(`${state.tournamentUrl}/api/v1/standings`, { headers });
+        const body = await res.json();
+        if (body.success && body.data) {
+          standingsBody.innerHTML = '';
+          const groups = Object.keys(body.data);
+          if (groups.length === 0) {
+            standingsBody.innerHTML = '<tr><td colspan="8" style="padding: 2rem 0.5rem; text-align: center; color: var(--text-muted);">No standings data. Play matches to calculate.</td></tr>';
+          } else {
+            groups.sort().forEach(groupId => {
+              const groupHeader = document.createElement('tr');
+              groupHeader.style.background = 'rgba(255,255,255,0.03)';
+              groupHeader.style.fontWeight = 'bold';
+              groupHeader.innerHTML = `<td colspan="8" style="padding: 0.5rem; color: var(--primary);">GROUP ${groupId}</td>`;
+              standingsBody.appendChild(groupHeader);
+
+              body.data[groupId].forEach(row => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--border-color)';
+                tr.innerHTML = `
+                  <td style="padding: 0.75rem 0.5rem;">${row.position}</td>
+                  <td style="padding: 0.75rem 0.5rem; font-weight: 600;">${row.team}</td>
+                  <td style="padding: 0.75rem 0.5rem; text-align: center;">${row.played}</td>
+                  <td style="padding: 0.75rem 0.5rem; text-align: center;">${row.won}</td>
+                  <td style="padding: 0.75rem 0.5rem; text-align: center;">${row.drawn}</td>
+                  <td style="padding: 0.75rem 0.5rem; text-align: center;">${row.lost}</td>
+                  <td style="padding: 0.75rem 0.5rem; text-align: center;">${row.goalDifference > 0 ? '+' : ''}${row.goalDifference}</td>
+                  <td style="padding: 0.75rem 0.5rem; text-align: center; font-weight: bold; color: var(--secondary);">${row.points}</td>
+                `;
+                standingsBody.appendChild(tr);
+              });
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load standings:", err);
+        standingsBody.innerHTML = '<tr><td colspan="8" style="padding: 2rem 0.5rem; text-align: center; color: var(--danger);">Error computing standings.</td></tr>';
+      }
+    }
+
+    async function createMatchFixture() {
+      const stage = document.getElementById('match-stage').value;
+      const groupId = document.getElementById('match-group-id').value || null;
+      const homeTeam = document.getElementById('match-home-team').value.trim();
+      const awayTeam = document.getElementById('match-away-team').value.trim();
+      const venueId = document.getElementById('match-venue-id').value;
+      const venueSel = document.getElementById('match-venue-id');
+      const venueName = venueSel.options[venueSel.selectedIndex].text;
+      
+      let kickoffTime = document.getElementById('match-kickoff-time').value.trim();
+      if (!kickoffTime) {
+        kickoffTime = new Date(Date.now() + 3600000).toISOString();
+      }
+
+      if (!homeTeam || !awayTeam) {
+        alert("Please fill in home and away teams.");
+        return;
+      }
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (state.token) {
+        headers['Authorization'] = `Bearer ${state.token}`;
+      }
+
+      try {
+        const res = await fetch(`${state.tournamentUrl}/api/v1/matches`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            stage,
+            groupId,
+            homeTeam,
+            awayTeam,
+            venueId,
+            venueName,
+            kickoffTime,
+          })
+        });
+
+        const body = await res.json();
+        if (body.success) {
+          showNotification("Fixture scheduled successfully!");
+          loadFixturesAndStandings();
+        } else {
+          alert("Error creating fixture: " + (body.error?.message || "Check permissions. Only Admins can modify fixtures."));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Failed to connect to Tournament Ops service.");
+      }
+    }
+
+    async function promptScoreUpdate(matchId) {
+      const home = prompt("Enter Home Team Score:");
+      if (home === null) return;
+      const away = prompt("Enter Away Team Score:");
+      if (away === null) return;
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (state.token) {
+        headers['Authorization'] = `Bearer ${state.token}`;
+      }
+
+      try {
+        const res = await fetch(`${state.tournamentUrl}/api/v1/matches/${matchId}`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({
+            homeScore: parseInt(home, 10),
+            awayScore: parseInt(away, 10),
+          })
+        });
+        const body = await res.json();
+        if (body.success) {
+          showNotification("Scores updated!");
+          loadFixturesAndStandings();
+        } else {
+          alert("Error updating scores: " + (body.error?.message || "Check permissions."));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function setMatchStatus(matchId, status) {
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (state.token) {
+        headers['Authorization'] = `Bearer ${state.token}`;
+      }
+
+      const payload = { status };
+      if (status === 'live') {
+        payload.minute = 1;
+        payload.homeScore = 0;
+        payload.awayScore = 0;
+      }
+
+      try {
+        const res = await fetch(`${state.tournamentUrl}/api/v1/matches/${matchId}`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify(payload)
+        });
+        const body = await res.json();
+        if (body.success) {
+          showNotification(`Match status set to ${status}!`);
+          loadFixturesAndStandings();
+        } else {
+          alert("Error updating status: " + (body.error?.message || "Check permissions."));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteMatchFixture(matchId) {
+      if (!confirm("Are you sure you want to delete this match?")) return;
+
+      const headers = {};
+      if (state.token) {
+        headers['Authorization'] = `Bearer ${state.token}`;
+      }
+
+      try {
+        const res = await fetch(`${state.tournamentUrl}/api/v1/matches/${matchId}`, {
+          method: 'DELETE',
+          headers,
+        });
+        const body = await res.json();
+        if (body.success) {
+          showNotification("Match fixture deleted.");
+          loadFixturesAndStandings();
+        } else {
+          alert("Error deleting fixture: " + (body.error?.message || "Check permissions."));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     function updateChatLanguage() {
       showNotification("AI query target language updated.");
     }
@@ -2055,17 +2432,20 @@
       const storedWF = localStorage.getItem('fifa_url_wayfinding');
       const storedCM = localStorage.getItem('fifa_url_crowd');
       const storedAS = localStorage.getItem('fifa_url_assistance');
+      const storedTO = localStorage.getItem('fifa_url_tournament');
       
       if (storedWF) state.wayfindingUrl = storedWF;
       if (storedCM) state.crowdUrl = storedCM;
       if (storedAS) state.assistanceUrl = storedAS;
+      if (storedTO) state.tournamentUrl = storedTO;
 
       document.getElementById('url-wayfinding').value = state.wayfindingUrl;
       document.getElementById('url-crowd').value = state.crowdUrl;
       document.getElementById('url-assistance').value = state.assistanceUrl;
+      document.getElementById('url-tournament').value = state.tournamentUrl;
 
       // Auto detect endpoints if empty
-      if (!storedWF && !storedCM && !storedAS) {
+      if (!storedWF && !storedCM && !storedAS && !storedTO) {
         autoDetectEndpoints();
         saveConfiguration();
       }

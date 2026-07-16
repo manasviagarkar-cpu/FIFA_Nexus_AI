@@ -7,3 +7,4 @@ export * from './auth';
 export * from './wayfinding';
 export * from './crowd';
 export * from './fan-assistance';
+export * from './tournament-ops';
